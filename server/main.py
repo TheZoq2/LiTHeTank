@@ -7,6 +7,7 @@ import json
 from enum import Enum
 import select
 from level import *
+import time
 
 PORT = 2000
 
@@ -112,9 +113,14 @@ def run_game(clients):
     tank = Tank()
     level = Level(tank)
 
+    old_time = time.time()
     while True:
+        new_time = old_time - time.time()
+        delta_t = new_time - old_time
+        old_time = new_time
         # Check all the sockets
-        level.update(1)
+        level.update(delta_t)
+        print(level.to_json())
 
 def main():
     # create an INET, STREAMing socket

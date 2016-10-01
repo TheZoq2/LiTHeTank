@@ -1,6 +1,7 @@
 import sdl2.ext
 from vec import Vec2, vec2_from_direction
 import random
+import json
 
 DEFAULT_ENEMY_SIZE = 5
 DEFAULT_BULLET_DAMAGE = 10
