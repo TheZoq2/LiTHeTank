@@ -5,6 +5,7 @@ import socket
 from vec import *
 import json
 from enum import Enum
+import select
 
 PORT = 2000
 
@@ -22,8 +23,15 @@ class Tank:
         return json.dumps(self, default=lambda o: o.__dict__, sort_keys=True, indent=4)
 
     def update():
-        forward_speed = left_track + right_track;
+        add_speed = left_track + right_track
+        add_angle = -left_track + right_track
 
+        self.angle += add_angle
+        self.position += vec2_from_direction(self.angle, add_speed)
+
+    def set_track_state(self, left, right):
+        self.left_track = left
+        self.right_track = right
 
 class Role(Enum):
     COMMANDER = 0,
@@ -55,7 +63,7 @@ class Client():
 
 
 def distribute_roles(clients):
-    if len(clients) == role_list:
+    if len(clients) == len(role_list):
         random.shuffle(role_list[:])
 
         for client in clients:
@@ -66,6 +74,25 @@ def distribute_roles(clients):
     else:
         return (None, "You need {} players to play".format(len(role_list)))
 
+
+def update_client(client):
+    (ready_to_read, ready_to_write, in_error) = select.select(
+                    [client.socket], 
+                    [client.socket],
+                    [],
+                    0
+                )
+    for s in ready_to_read:
+        data = s.recv(4096);
+        
+
+
+def run_game(clients):
+    for client  in  clients:
+        client.send_role()
+    while True:
+        #Check all the sockets
+        pass
 
 def main():
     # create an INET, STREAMing socket
@@ -84,6 +111,7 @@ def main():
     while True:
         # accept connections from outside
         (clientsocket, address) = serversocket.accept()
+        clientsocket.setblocking(False)
         # now do something with the clientsocket
         # in this case, we'll pretend this is a threaded server
         clientsocket.send(bytes(str(tank.to_json()), 'utf-8'))
@@ -92,7 +120,8 @@ def main():
 
         if len(clients) == len(role_list):
             clients = distribute_roles(clients)
-            print(clients)
+            run_game(clients)
+            #print(clients)
 
 
 main()

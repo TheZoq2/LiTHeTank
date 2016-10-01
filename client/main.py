@@ -41,6 +41,7 @@ def run():
                 break
 
         test = s.recv(1024)
+        print(test)
         if test == b"exit":
             running = False
 
