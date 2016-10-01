@@ -13,9 +13,16 @@ class Tank:
         self.gun_angle = 0
         self.health = 100
         self.position = Vec2(0,0)
+        self.angle = 0
 
     def to_json(self):
         return json.dumps(self, default=lambda o: o.__dict__, sort_keys=True, indent=4)
+
+    def drive_forward(speed):
+        self.position += vec2_from_direction(self.angle, speed)
+
+    def turn(vel):
+        self.angle += vel
 
 
 
@@ -49,7 +56,7 @@ class Client():
 
 
 def distribute_roles(clients):
-    if len(clients) == 3:
+    if len(clients) == role_list:
         random.shuffle(role_list[:])
 
         for client in clients:
@@ -58,7 +65,7 @@ def distribute_roles(clients):
 
         return clients
     else:
-        return (None, "You need 3 players to play")
+        return (None, "You need {} players to play".format(len(role_list)))
 
 
 def main():
