@@ -56,12 +56,11 @@ class Level():
         elif self.tank.firing_right:
             self._fire_tank(FIRE_RIGHT)
             self.firing_right = False
-        self._update_bullet_positions()
-        self._update_enemy_positions()
-        self._fire_enemies()
+        self._update_bullet_positions(delta_time)
+        self._update_enemy_positions(delta_time)
+        self._fire_enemies(delta_time)
         self._remove_dead_enemies()
-        if not random.randint(0, 100):
-            self._spawn_enemy()
+        self._spawn_enemies(delta_time)
 
     def to_json(self):
         return json.dumps(self, default=lambda o: o.__dict__, sort_keys=True, indent=4)
@@ -75,21 +74,22 @@ class Level():
         for bullet in self.bullets:
             for enemy in self.enemies:
                 if bullet.position.is_within_bounds(enemy.position, enemy.size):
-                    pass
+                    enemy.health -= bullet.damage
+                    
 
-    def _update_bullet_positions(self):
+    def _update_bullet_positions(self, delta_time):
         for bullet in self.bullets:
-            bullet.position += bullet.velocity
+            bullet.position += bullet.velocity * delta_time
 
-    def _update_enemy_positions(self):
+    def _update_enemy_positions(self, delta_time):
         pass
     
     def _remove_dead_enemies(self):
         self.enemies = [e for e in self.enemies if not e.is_dead()]
 
-    def _fire_enemies(self):
+    def _fire_enemies(self, delta_time):
         for enemy in self.enemies:
-            should_fire = not random.randint(0, enemy.firing_frequency)
+            should_fire = not random.randint(0, enemy.firing_frequency * delta_time)
 
             # if the random number was 0, fire
             if should_fire:
@@ -98,7 +98,7 @@ class Level():
     def _enemy_fire(self, enemy):
         pass
     
-    def _spawn_enemy(self):
+    def _spawn_enemies(self, delta_time):
         randx = random.randint(0, 1000)
         randy = random.randint(0, 1000)
         self.enemies.append(Enemy(Vec2(randx, randy)))
