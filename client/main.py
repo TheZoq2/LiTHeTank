@@ -23,14 +23,7 @@ def request_data_from_server(socket):
     #create_message_template(type)
     pass
 
-yolo = 0
-def run():
-    # create an INET, STREAMing socket
-    s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    # now connect to the web server on port 80 - the normal http port
-    s.connect(("localhost", 2000))
-    s.setblocking(False)
-
+def create_window():
     sdl2.ext.init()
     window_size = (1200, 700)
     window = sdl2.ext.Window("LiTHe Spank", size=window_size)
@@ -39,11 +32,22 @@ def run():
     window.show()
 
     factory = sdl2.ext.SpriteFactory(renderer=renderer)
-    turret = factory.from_image(RESOURCES.get_path("tank top.png"))
-    tank = factory.from_image(RESOURCES.get_path("tank bot.png"))
-    background = factory.from_color(GREEN, size=window_size)
 
     spriterenderer = factory.create_sprite_render_system(window)
+    return window, spriterenderer, factory
+
+yolo = 0
+def run():
+    # create an INET, STREAMing socket
+    s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    # now connect to the web server on port 80 - the normal http port
+    s.connect(("localhost", 2000))
+    s.setblocking(False)
+
+    window, spriterenderer, factory = create_window()
+    turret = factory.from_image(RESOURCES.get_path("tank top.png"))
+    tank = factory.from_image(RESOURCES.get_path("tank bot.png"))
+    background = factory.from_color(GREEN, size=(300, 175))
 
     running = True
     while running:
