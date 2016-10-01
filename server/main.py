@@ -15,8 +15,7 @@ class Tank:
         self.health = 100
         self.position = Vec2(0,0)
         self.angle = 0
-        self.firing_left = False
-        self.firing_right = False
+        self.firing = False
 
         self.left_track = 0
         self.right_track = 0
@@ -24,9 +23,9 @@ class Tank:
     def to_json(self):
         return json.dumps(self, default=lambda o: o.__dict__, sort_keys=True, indent=4)
 
-    def update(self):
-        add_speed = self.left_track + self.right_track
-        add_angle = -self.left_track + self.right_track
+    def update():
+        add_speed = left_track + right_track
+        add_angle = -left_track + right_track
 
         self.angle += add_angle
         self.position += vec2_from_direction(self.angle, add_speed)
@@ -68,8 +67,6 @@ class Client():
         self.role = role
 
     def send_role(self):
-        #self.socket.send(bytes('{"role":"' + role_to_string(self.role) + '"}', 'utf-8'))
-        #self.socket.send(bytes(get_client_msg("role", role_to_string(self.role)), 'utf-8'))
         send_msg_to_client(self.socket, get_client_msg("role", role_to_string(self.role)))
 
 

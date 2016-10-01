@@ -11,6 +11,7 @@ DEFAULT_ENEMY_HEALTH = 20
 # The default probability for the enemies. Higher numbers result in lower frequencies
 DEFAULT_FIRING_FREQUENCY = 100
 
+
 class Enemy():
 
     def __init__(self, position, 
@@ -48,7 +49,7 @@ class Level():
         self.enemies = []
         self.bullets = []
 
-    def update(self):
+    def update(self, delta_time):
         if self.tank.firing_left:
             self._fire_tank(FIRE_LEFT)
             self.tank.firing_left = False
@@ -68,7 +69,10 @@ class Level():
                                   self.tank.gun_angle + self.tank.angle))
     
     def _handle_bullet_collisions(self):
-        pass
+        for bullet in self.bullets:
+            for enemy in self.enemies:
+                if bullet.position.is_within_bounds(enemy.position, enemy.size):
+                    pass
 
     def _update_bullet_positions(self):
         for bullet in self.bullets:
