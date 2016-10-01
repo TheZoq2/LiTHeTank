@@ -13,7 +13,7 @@ def main():
     serversocket.listen(5)
 
     print("Listening on port {}".format(PORT))
-
+    print("penis")
     while True:
         # accept connections from outside
         (clientsocket, address) = serversocket.accept()
