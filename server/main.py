@@ -50,6 +50,8 @@ def role_to_string(role):
 role_list = [Role.COMMANDER, Role.GUNNER, Role.DRIVER]
 
 
+def get_client_msg(type, payload):
+    return json.dumps({"type": type, "data": payload},)
 
 class Client():
     def __init__(self, socket):
@@ -60,7 +62,8 @@ class Client():
         self.role = role
 
     def send_role(self):
-        self.socket.send(bytes('{"role":"' + role_to_string(self.role) + '"}', 'utf-8'))
+        #self.socket.send(bytes('{"role":"' + role_to_string(self.role) + '"}', 'utf-8'))
+        self.socket.send(bytes(get_client_msg("role", role_to_string(self.role)), 'utf-8'))
 
 
 def distribute_roles(clients):
