@@ -2,20 +2,15 @@
 import socket
 import sys
 from select import select
+import json
+import math
 import sdl2
 import sdl2.ext
-import json
 
 WHITE = sdl2.ext.Color(255, 255, 255)
 GREEN = sdl2.ext.Color(150, 255, 120)
 
-class SoftwareRenderer(sdl2.ext.SoftwareSpriteRenderSystem):
-    def __init__(self, window):
-        super(SoftwareRenderer, self).__init__(window)
-
-    def render(self, components):
-        sdl2.ext.fill(self.surface, GREEN)
-        super(SoftwareRenderer, self).render(components)
+RESOURCES = sdl2.ext.Resources(__file__, "resources")
 
 def create_message_template(type, payload):
     return json.dumps({"type": type, "data": payload},)
@@ -24,6 +19,7 @@ def request_data_from_server(socket):
     #create_message_template(type)
     pass
 
+yolo = 0
 def run():
     # create an INET, STREAMing socket
     s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -32,15 +28,18 @@ def run():
     s.setblocking(False)
 
     sdl2.ext.init()
-    window = sdl2.ext.Window("LiTHe Spank", size=(800, 600))
+    window_size = (1200, 700)
+    window = sdl2.ext.Window("LiTHe Spank", size=window_size)
+    renderer = sdl2.ext.Renderer(window)
+    renderer.scale = (4, 4)
     window.show()
 
-    world = sdl2.ext.World()
+    factory = sdl2.ext.SpriteFactory(renderer=renderer)
+    turret = factory.from_image(RESOURCES.get_path("tank top.png"))
+    tank = factory.from_image(RESOURCES.get_path("tank bot.png"))
+    background = factory.from_color(GREEN, size=window_size)
 
-    spriterenderer = SoftwareRenderer(window)
-    world.add_system(spriterenderer)
-
-    factory = sdl2.ext.SpriteFactory(sdl2.ext.SOFTWARE)
+    spriterenderer = factory.create_sprite_render_system(window)
 
     running = True
     while running:
@@ -64,7 +63,11 @@ def run():
             if server_data == b"exit":
                 running = False
 
-        world.process()
+        global yolo
+        yolo += 1
+        tank.y = int(50 * math.sin(yolo / 300)) + 80
+        turret.y = int(50 * math.sin(yolo / 300)) + 80
+        spriterenderer.render([background, tank, turret])
 
     s.shutdown(socket.SHUT_WR)
     s.close()
