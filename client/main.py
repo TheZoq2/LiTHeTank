@@ -4,6 +4,7 @@ import sys
 from select import select
 import sdl2
 import sdl2.ext
+import json
 
 WHITE = sdl2.ext.Color(255, 255, 255)
 
@@ -45,7 +46,19 @@ def run():
         ready_to_read, ready_to_write, in_error = select([s], [s], [], 0)
 
         for ready in ready_to_read:
-            test = ready.recv(1024)
+            server_data = ready.recv(10240).decode()
+            print(server_data)
+            bytes_to_read = server.data[0:2]
+            print(bytes_to_read)
+            server_data = server_data[2:]
+            print(server_data)
+
+            #data = json.loads(test.decode("utf-8"))
+            print("hoop")
+            print(data)
+            if (data["type"] == "role"):
+                role = data["role"]
+                print(role)
             if not test:
                 print("Server disconnected")
                 running = False
