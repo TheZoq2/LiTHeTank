@@ -1,9 +1,10 @@
 from render_util import *
+from select import select
 
-def driver_main(spriterenderer, factory, socket):
+def driver_main(spriterenderer, factory, s):
     print("I'm a driver!")
 
-    compass = factory.from_image(RESOURCES.get_path("tank bot.png"))
+    compass = load_sprite("background_driver.png")
 
     running = True
 
