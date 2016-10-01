@@ -3,11 +3,14 @@ from vec import Vec2, vec2_from_direction
 import random
 import json
 
+FIRE_LEFT = 0
+FIRE_RIGHT = 1
+
 DEFAULT_ENEMY_SIZE = 5
 DEFAULT_BULLET_DAMAGE = 10
 DEFAULT_BULLET_SPEED = 2
-
 DEFAULT_ENEMY_HEALTH = 20
+SPAWN_FREQUENCY = 100
 
 # The default probability for the enemies. Higher numbers result in lower frequencies
 DEFAULT_FIRING_FREQUENCY = 100
@@ -39,11 +42,8 @@ class Bullet():
         self.velocity = vec2_from_direction(angle, speed)
         self.damage = damage
 
-FIRE_LEFT = 0
-FIRE_RIGHT = 1
 
 class Level():
-
     
     def __init__(self, tank):
         self.tank = tank
@@ -61,7 +61,7 @@ class Level():
         self._update_enemy_positions(delta_time)
         self._fire_enemies(delta_time)
         self._remove_dead_enemies()
-        self._spawn_enemies(delta_time)
+        # self._spawn_enemies(delta_time)
 
     def to_json(self):
         return json.dumps(self, default=lambda o: o.__dict__, sort_keys=True, indent=4)
@@ -90,7 +90,7 @@ class Level():
 
     def _fire_enemies(self, delta_time):
         for enemy in self.enemies:
-            should_fire = not random.randint(0, enemy.firing_frequency * delta_time)
+            should_fire = not random.randint(0, int(enemy.firing_frequency * (1 / delta_time)))
 
             # if the random number was 0, fire
             if should_fire:
@@ -100,8 +100,9 @@ class Level():
         pass
     
     def _spawn_enemies(self, delta_time):
-        randx = random.randint(0, 1000)
-        randy = random.randint(0, 1000)
-        self.enemies.append(Enemy(Vec2(randx, randy)))
+        if not random.randint(0, int(SPAWN_FREQUENCY / delta_time)):
+            randx = random.randint(0, 1000)
+            randy = random.randint(0, 1000)
+            self.enemies.append(Enemy(Vec2(randx, randy)))
         
 
