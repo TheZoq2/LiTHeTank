@@ -1,4 +1,3 @@
-
 def vec2_from_direction(angle, length):
     Vec2(cos(angle), sin(angle)) * length
 
@@ -24,5 +23,4 @@ class Vec2:
     
     def __mul__(self, other):
         return Vec2(self.x * other, self.y * other)
-
 
