@@ -24,7 +24,7 @@ def run():
     s.setblocking(False)
 
     sdl2.ext.init()
-    window = sdl2.ext.Window("LiTHe Tank", size=(800, 600))
+    window = sdl2.ext.Window("LiTHe Spank", size=(800, 600))
     window.show()
 
     world = sdl2.ext.World()
