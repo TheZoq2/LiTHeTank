@@ -6,6 +6,7 @@ from vec import *
 import json
 from enum import Enum
 import select
+from level import *
 
 PORT = 2000
 
@@ -15,7 +16,8 @@ class Tank:
         self.health = 100
         self.position = Vec2(0,0)
         self.angle = 0
-        self.firing = False
+        self.firing_left = False
+        self.firing_right = False
 
         self.left_track = 0
         self.right_track = 0
@@ -107,9 +109,12 @@ def run_game(clients):
         if healthy_conn:
             client.send_role()
 
+    tank = Tank()
+    level = Level(tank)
+
     while True:
         # Check all the sockets
-        pass
+        level.update(1)
 
 def main():
     # create an INET, STREAMing socket

@@ -38,11 +38,11 @@ class Bullet():
         self.velocity = vec2_from_direction(angle, speed)
         self.damage = damage
 
+FIRE_LEFT = 0
+FIRE_RIGHT = 1
 
 class Level():
 
-    FIRE_LEFT = 0
-    FIRE_RIGHT = 1
     
     def __init__(self, tank):
         self.tank = tank
@@ -53,7 +53,7 @@ class Level():
         if self.tank.firing_left:
             self._fire_tank(FIRE_LEFT)
             self.tank.firing_left = False
-        else:
+        elif self.tank.firing_right:
             self._fire_tank(FIRE_RIGHT)
             self.firing_right = False
         self._update_bullet_positions()
@@ -62,6 +62,9 @@ class Level():
         self._remove_dead_enemies()
         if not random.randint(0, 100):
             self._spawn_enemy()
+
+    def to_json(self):
+        return json.dumps(self, default=lambda o: o.__dict__, sort_keys=True, indent=4)
 
     def _fire_tank(self, cannon):
         # TODO differentiate between left and right
