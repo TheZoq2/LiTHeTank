@@ -1,8 +1,13 @@
-def gunner_main(renderer, factory, socket):
+import json
+from render_util import *
+from select import select
+from socket_util import *
+
+def gunner_main(renderer, factory, s):
 
     print("I'm a gunner!")
 
-    background = load_sprite("gunner_background.png", faactory)
+    background = load_sprite("gunner_background.png", factory)
     compass_needle = load_sprite("compass_needle.png", factory)
     tank_angle = 0
 
@@ -38,5 +43,5 @@ def gunner_main(renderer, factory, socket):
             if server_data == b"exit":
                 running = False
 
-        compass.angle = -tank_angle
-        spriterenderer.render([background, compass])
+        compass_needle.angle = -tank_angle
+        renderer.render([background, compass_needle])
