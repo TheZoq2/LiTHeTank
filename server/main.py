@@ -101,8 +101,9 @@ def update_client(client, level):
             for msg in decoded:
                 msg_dict = json.loads(msg)
 
-                if msg_dict["type"] == "request_data":
-                    send_msg_to_socket(self.socket, create_socket_msg("update", level.to_json()))
+                if msg_dict["type"] == "update":
+                    send_msg_to_socket(client.socket, create_socket_msg("update", level.to_json()))
+
                 else:
                     handle_game_msg_from_client(client, level)
 
