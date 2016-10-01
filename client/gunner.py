@@ -1,3 +1,3 @@
-def gunner_main():
+def gunner_main(spriterenderer, factory, socket):
     print("I'm a gunner!")
 

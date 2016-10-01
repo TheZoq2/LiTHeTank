@@ -64,11 +64,11 @@ def run():
                 loaded_data = json.loads(data)
                 if (loaded_data["type"] == "role"):
                     if (loaded_data["data"] == "GUNNER"):
-                        gunner_main()
+                        gunner_main(spriterenderer, factory, s)
                     if (loaded_data["data"] == "DRIVER"):
-                        driver_main()
+                        driver_main(spriterenderer, factory, s)
                     if (loaded_data["data"] == "COMMANDER"):
-                        commander_main()
+                        commander_main(spriterenderer, factory, s)
 
             if not server_data:
                 print("Server disconnected")
