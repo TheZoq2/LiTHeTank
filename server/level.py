@@ -74,10 +74,11 @@ class Level():
     
     def _handle_bullet_collisions(self):
         for bullet in self.bullets:
+            if bullet.position.is_within_bounds(self.tank.position, enemy.size):
+                self.tank.health -= bullet.damage
             for enemy in self.enemies:
                 if bullet.position.is_within_bounds(enemy.position, enemy.size):
                     enemy.health -= bullet.damage
-                    
 
     def _update_bullet_positions(self, delta_time):
         for bullet in self.bullets:
@@ -98,12 +99,13 @@ class Level():
                 self._enemy_fire(enemy)
                 
     def _enemy_fire(self, enemy):
-        pass
+        angle = enemy.position.relative_angle_to(self.tank.position)
+        self.bullets.append(Bullet(enemy.position, angle))
     
     def _spawn_enemies(self, delta_time):
         if random.randint(0, int(SPAWN_FREQUENCY / delta_time)) == 0:
-            randx = random.randint(0, 1000)
-            randy = random.randint(0, 1000)
+            randx = random.randint(-1000, 1000)
+            randy = random.randint(-1000, 1000)
             self.enemies.append(Enemy(Vec2(randx, randy)))
         
 
