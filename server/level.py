@@ -1,6 +1,8 @@
 import sdl2.ext
 from vec import Vec2, vec2_from_direction
 import random
+import json
+import pdb
 
 FIRE_LEFT = 0
 FIRE_RIGHT = 1
@@ -9,7 +11,7 @@ DEFAULT_ENEMY_SIZE = 5
 DEFAULT_BULLET_DAMAGE = 10
 DEFAULT_BULLET_SPEED = 2
 DEFAULT_ENEMY_HEALTH = 20
-SPAWN_FREQUENCY = 100
+SPAWN_FREQUENCY = 10
 
 # The default probability for the enemies. Higher numbers result in lower frequencies
 DEFAULT_FIRING_FREQUENCY = 100
@@ -60,7 +62,7 @@ class Level():
         self._update_enemy_positions(delta_time)
         self._fire_enemies(delta_time)
         self._remove_dead_enemies()
-        # self._spawn_enemies(delta_time)
+        self._spawn_enemies(delta_time)
 
     def to_json(self):
         return json.dumps(self, default=lambda o: o.__dict__, sort_keys=True, indent=4)
@@ -101,7 +103,7 @@ class Level():
         self.bullets.append(Bullet(enemy.position, angle))
     
     def _spawn_enemies(self, delta_time):
-        if not random.randint(0, int(SPAWN_FREQUENCY / delta_time)):
+        if random.randint(0, int(SPAWN_FREQUENCY / delta_time)) == 0:
             randx = random.randint(-1000, 1000)
             randy = random.randint(-1000, 1000)
             self.enemies.append(Enemy(Vec2(randx, randy)))
