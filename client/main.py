@@ -4,7 +4,7 @@ import sys
 from select import select
 import sdl2
 import sdl2.ext
-import os
+
 WHITE = sdl2.ext.Color(255, 255, 255)
 
 class SoftwareRenderer(sdl2.ext.SoftwareSpriteRenderSystem):
@@ -26,7 +26,6 @@ def run():
     # create an INET, STREAMing socket
     s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     # now connect to the web server on port 80 - the normal http port
-    os.system("sl")
     s.connect(("localhost", 2000))
     s.setblocking(False)
 
