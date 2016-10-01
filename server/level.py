@@ -55,6 +55,12 @@ class Level():
         else:
             self._fire_tank(FIRE_RIGHT)
             self.firing_right = False
+        self._update_bullet_positions()
+        self._update_enemy_positions()
+        self._fire_enemies()
+        self._remove_dead_enemies()
+        if not random.randint(0, 100):
+            self._spawn_enemy()
 
     def _fire_tank(self, cannon):
         # TODO differentiate between left and right
