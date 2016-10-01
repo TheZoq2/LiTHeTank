@@ -15,7 +15,8 @@ class Tank:
         self.health = 100
         self.position = Vec2(0,0)
         self.angle = 0
-        self.firing = False
+        self.firing_left = False
+        self.firing_right = False
 
         self.left_track = 0
         self.right_track = 0
@@ -23,9 +24,9 @@ class Tank:
     def to_json(self):
         return json.dumps(self, default=lambda o: o.__dict__, sort_keys=True, indent=4)
 
-    def update():
-        add_speed = left_track + right_track
-        add_angle = -left_track + right_track
+    def update(self):
+        add_speed = self.left_track + self.right_track
+        add_angle = -self.left_track + self.right_track
 
         self.angle += add_angle
         self.position += vec2_from_direction(self.angle, add_speed)

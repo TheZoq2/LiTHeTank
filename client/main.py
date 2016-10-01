@@ -4,6 +4,7 @@ import sys
 from select import select
 import sdl2
 import sdl2.ext
+import json
 
 WHITE = sdl2.ext.Color(255, 255, 255)
 
@@ -51,13 +52,15 @@ def run():
         ready_to_read, ready_to_write, in_error = select([s], [s], [], 0)
 
         for ready in ready_to_read:
-            test = ready.recv(1024)
-            print(test)
-            if not test:
+            server_data = ready.recv(10240).decode("utf-8")
+
+            decode_server_data(server_data)
+
+            if not server_data:
                 print("Server disconnected")
                 running = False
 
-            if test == b"exit":
+            if server_data == b"exit":
                 running = False
 
         world.process()
@@ -65,6 +68,16 @@ def run():
     s.shutdown(socket.SHUT_WR)
     s.close()
     return 0
+
+def decode_server_data(server_data):
+    data_chunks = []
+    while (server_data):
+        index = server_data.find('{')
+        bytes_to_read = int(server_data[0:index])
+        server_data = server_data[index:]
+        data_chunks.append(server_data[0:bytes_to_read])
+        server_data = server_data[bytes_to_read:]
+    return data_chunks
 
 
 if __name__ == "__main__":
