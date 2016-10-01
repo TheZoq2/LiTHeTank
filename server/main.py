@@ -94,7 +94,6 @@ def update_client(client):
                 )
     for s in ready_to_read:
         data = s.recv(4096);
-        
 
 
 def run_game(clients):

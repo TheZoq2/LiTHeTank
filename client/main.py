@@ -52,6 +52,7 @@ def run():
 
         for ready in ready_to_read:
             test = ready.recv(1024)
+            print(test)
             if not test:
                 print("Server disconnected")
                 running = False
