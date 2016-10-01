@@ -2,6 +2,8 @@ import sdl2.ext
 from vec import Vec2, vec2_from_direction
 import math
 import random
+import json
+import pdb
 
 FIRE_LEFT = 0
 FIRE_RIGHT = 1
@@ -11,7 +13,10 @@ DEFAULT_BULLET_DAMAGE = 10
 DEFAULT_BULLET_SPEED = 2
 DEFAULT_ENEMY_HEALTH = 20
 SPAWN_FREQUENCY = 10
+<<<<<<< HEAD
 TANK_SIZE = 16
+=======
+>>>>>>> db642cae8210448949129ddc8f146e0cbac9a837
 
 # The default probability for the enemies. Higher numbers result in lower frequencies
 DEFAULT_FIRING_FREQUENCY = 1
@@ -105,7 +110,7 @@ class Level():
         self.bullets.append(Bullet(enemy.position, enemy.angle))
     
     def _spawn_enemies(self, delta_time):
-        if not random.randint(0, int(SPAWN_FREQUENCY / delta_time)):
+        if random.randint(0, int(SPAWN_FREQUENCY / delta_time)) == 0:
             randx = random.randint(-1000, 1000)
             randy = random.randint(-1000, 1000)
             self.enemies.append(Enemy(Vec2(randx, randy)))
