@@ -8,13 +8,14 @@ import json
 from socket_util import *
 
 WHITE = sdl2.ext.Color(255, 255, 255)
+GREEN = sdl2.ext.Color(150, 255, 120)
 
 class SoftwareRenderer(sdl2.ext.SoftwareSpriteRenderSystem):
     def __init__(self, window):
         super(SoftwareRenderer, self).__init__(window)
 
     def render(self, components):
-        sdl2.ext.fill(self.surface, sdl2.ext.Color(0, 0, 0))
+        sdl2.ext.fill(self.surface, GREEN)
         super(SoftwareRenderer, self).render(components)
 
 def create_message_template(type, payload):
