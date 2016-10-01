@@ -1,2 +1,2 @@
-def driver_main():
+def driver_main(spriterenderer, factory, socket):
     print("I'm a driver!")
