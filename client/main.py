@@ -6,6 +6,9 @@ import sdl2
 import sdl2.ext
 import json
 from socket_util import *
+from gunner import *
+from commander import *
+from driver import *
 
 WHITE = sdl2.ext.Color(255, 255, 255)
 GREEN = sdl2.ext.Color(150, 255, 120)
@@ -56,7 +59,17 @@ def run():
         for ready in ready_to_read:
             server_data = ready.recv(10240).decode("utf-8")
 
-            decode_server_data(server_data)
+            decoded_server_data = decode_server_data(server_data)
+
+            for data in decoded_server_data:
+                loaded_data = json.loads(data)
+                if (loaded_data["type"] == "role"):
+                    if (loaded_data["data"] == "GUNNER"):
+                        gunner_main()
+                    if (loaded_data["data"] == "DRIVER"):
+                        driver_main()
+                    if (loaded_data["data"] == "COMMANDER"):
+                        commander_main()
 
             if not server_data:
                 print("Server disconnected")

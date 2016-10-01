@@ -1,3 +1,3 @@
-class Gunner():
-    def hej(self, do):
-        print(do)
+def gunner_main():
+    print("I'm a gunner!")
+
