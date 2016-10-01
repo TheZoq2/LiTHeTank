@@ -88,22 +88,30 @@ def distribute_roles(clients):
 
 def update_client(client):
     (ready_to_read, ready_to_write, in_error) = select.select(
-                    [client.socket], 
+                    [client.socket],
                     [client.socket],
                     [],
                     0
                 )
+
     for s in ready_to_read:
-        data = s.recv(4096);
-        
+        data = s.recv(4096)
+        if not data:
+            print("Lost connection to client")
+            s.close()
+            return False
+
+    return True
 
 
 def run_game(clients):
-    for client  in  clients:
-        client.send_role()
+    for client in clients:
+        healthy_conn = update_client(client)
+        if healthy_conn:
+            client.send_role()
 
     while True:
-        #Check all the sockets
+        # Check all the sockets
         pass
 
 def main():
@@ -127,7 +135,7 @@ def main():
         # now do something with the clientsocket
         # in this case, we'll pretend this is a threaded server
         #clientsocket.send(bytes(str(tank.to_json()), 'utf-8'))
-        
+
         clients.append(Client(clientsocket))
 
         if len(clients) == len(role_list):
