@@ -15,6 +15,7 @@ class Tank:
         self.health = 100
         self.position = Vec2(0,0)
         self.angle = 0
+        self.firing = False
 
         self.left_track = 0
         self.right_track = 0
