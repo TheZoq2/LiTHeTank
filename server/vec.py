@@ -4,6 +4,7 @@ def vec2_from_direction(angle, length):
     return Vec2(math.cos(angle), math.sin(angle)) * length
 
 class Vec2:
+
     def __init__(self, x, y = None):
         if y is None:
             #This is a tuple
@@ -20,8 +21,9 @@ class Vec2:
         return Vec2(self.x - other.x, self.y - other.y)
 
     def __iadd__(self, other):
-        self.x += other.x
-        self.y += other.y
+        new_x = self.x + other.x
+        new_y = self.y + other.y
+        return Vec2(new_x, new_y)
     
     def __mul__(self, other):
         return Vec2(self.x * other, self.y * other)
@@ -33,4 +35,9 @@ class Vec2:
         """Checks whether this vector is within size distance from center_point"""
         return abs(self - center_point) <= size
 
+    def angle(self):
+        return math.atan2(self.x, self.y)
+
+    def relative_angle_to(self, other):
+        return (self - other).angle()
 
