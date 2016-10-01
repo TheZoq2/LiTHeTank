@@ -5,8 +5,12 @@ from socket_util import *
 def driver_main(spriterenderer, factory, s):
     print("I'm a driver!")
 
-    compass = load_sprite("driver_background.png", factory)
+    background = load_sprite("driver_background.png", factory)
+    spriterenderer.render([background])
     tank_angle = 0
+
+    # TODO add needle
+    compass = load_sprite("tank top.png", factory)
 
     running = True
 
