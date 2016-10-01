@@ -15,15 +15,14 @@ class Tank:
         self.position = Vec2(0,0)
         self.angle = 0
 
+        self.left_track = 0
+        self.right_track = 0
+
     def to_json(self):
         return json.dumps(self, default=lambda o: o.__dict__, sort_keys=True, indent=4)
 
-    def drive_forward(speed):
-        self.position += vec2_from_direction(self.angle, speed)
-
-    def turn(vel):
-        self.angle += vel
-
+    def update():
+        forward_speed = left_track + right_track;
 
 
 class Role(Enum):
