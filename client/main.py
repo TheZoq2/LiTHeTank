@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 import socket
 import sys
+from select import select
 import sdl2
 import sdl2.ext
 
@@ -20,6 +21,7 @@ def run():
     s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     # now connect to the web server on port 80 - the normal http port
     s.connect(("localhost", 2000))
+    s.setblocking(False)
 
     sdl2.ext.init()
     window = sdl2.ext.Window("LiTHe Tank", size=(800, 600))
@@ -40,9 +42,12 @@ def run():
                 running = False
                 break
 
-        test = s.recv(1024)
-        if test == b"exit":
-            running = False
+        ready_to_read, ready_to_write, in_error = select([s], [s], [], 0)
+
+        for ready in ready_to_read:
+            test = ready.recv(1024)
+            if test == b"exit":
+                running = False
 
         world.process()
     return 0
