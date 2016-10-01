@@ -96,7 +96,7 @@ def update_client(client, level):
             s.close()
             return False
         else:
-            decoded = decode_server_data(data)
+            decoded = decode_socket_data(data)
 
             for msg in decoded:
                 msg_dict = json.loads(msg)

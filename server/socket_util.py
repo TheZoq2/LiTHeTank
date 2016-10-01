@@ -5,7 +5,7 @@ def send_msg_to_socket(socket, msg):
 
     socket.send(bytes(final_msg, 'utf-8'))
 
-def decode_server_data(server_data):
+def decode_socket_data(server_data):
     data_chunks = []
     while (server_data):
         index = server_data.find('{')
