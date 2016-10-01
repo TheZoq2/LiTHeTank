@@ -1,7 +1,7 @@
 import math
 
 def vec2_from_direction(angle, length):
-    Vec2(cos(angle), sin(angle)) * length
+    return Vec2(math.cos(angle), math.sin(angle)) * length
 
 class Vec2:
     def __init__(self, x, y = None):
