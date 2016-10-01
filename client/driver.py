@@ -1,10 +1,12 @@
 from render_util import *
 from select import select
+from socket_util import *
 
 def driver_main(spriterenderer, factory, s):
     print("I'm a driver!")
 
-    compass = load_sprite("background_driver.png")
+    compass = load_sprite("driver_background.png", factory)
+    tank_angle = 0
 
     running = True
 
@@ -24,7 +26,6 @@ def driver_main(spriterenderer, factory, s):
 
             decoded_server_data = decode_server_data(server_data)
 
-            tank_angle = 0
 
             for data in decoded_server_data:
                 loaded_data = json.loads(data)
