@@ -14,12 +14,12 @@ DEFAULT_FIRING_FREQUENCY = 100
 class Enemy():
 
     def __init__(self, position, 
-                 direction=None,
+                 angle=None,
                  health=DEFAULT_ENEMY_HEALTH,
                  size=DEFAULT_ENEMY_SIZE,
                  firing_frequency=DEFAULT_FIRING_FREQUENCY):
         self.position = position
-        self.facing_direction = direction if direction is not None else Vec2(0, -1)
+        self.angle = angle if angle is not None else 0
         self.health = health 
         self.size = size
         self.firing_frequency = firing_frequency
@@ -80,9 +80,9 @@ class Level():
 
             # if the random number was 0, fire
             if should_fire:
-                self._fire_enemy(enemy)
+                self._enemy_fire(enemy)
                 
-    def _fire_enemy(self, enemy):
+    def _enemy_fire(self, enemy):
         pass
     
     def _spawn_enemy(self):

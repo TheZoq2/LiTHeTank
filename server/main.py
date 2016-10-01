@@ -24,9 +24,9 @@ class Tank:
     def to_json(self):
         return json.dumps(self, default=lambda o: o.__dict__, sort_keys=True, indent=4)
 
-    def update():
-        add_speed = left_track + right_track
-        add_angle = -left_track + right_track
+    def update(self):
+        add_speed = self.left_track + self.right_track
+        add_angle = -self.left_track + self.right_track
 
         self.angle += add_angle
         self.position += vec2_from_direction(self.angle, add_speed)
