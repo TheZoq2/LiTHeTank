@@ -7,14 +7,13 @@ import math
 import sdl2
 import sdl2.ext
 from socket_util import *
+from render_util import *
 from gunner import *
 from commander import *
 from driver import *
 
 WHITE = sdl2.ext.Color(255, 255, 255)
 GREEN = sdl2.ext.Color(150, 255, 120)
-
-RESOURCES = sdl2.ext.Resources(__file__, "resources")
 
 def create_message_template(type, payload):
     return json.dumps({"type": type, "data": payload},)
@@ -44,10 +43,11 @@ def run():
     s.connect(("localhost", 2000))
     s.setblocking(False)
 
-    window, spriterenderer, factory = create_window()
-    turret = factory.from_image(RESOURCES.get_path("tank top.png"))
-    tank = factory.from_image(RESOURCES.get_path("tank bot.png"))
+    window, renderer, factory = create_window()
+    turret = load_sprite("tank top.png", factory)
+    tank = load_sprite("tank bot.png", factory)
     background = factory.from_color(GREEN, size=(300, 175))
+    background.angle = 0
 
     running = True
     while running:
@@ -85,7 +85,9 @@ def run():
         yolo += 1
         tank.y = int(50 * math.sin(yolo / 300)) + 80
         turret.y = int(50 * math.sin(yolo / 300)) + 80
-        spriterenderer.render([background, tank, turret])
+        tank.angle = yolo / 10
+        turret.angle = math.sin(yolo/300)
+        render_sprites([background, tank, turret], renderer)
 
     s.shutdown(socket.SHUT_WR)
     s.close()
