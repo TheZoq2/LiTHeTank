@@ -90,6 +90,7 @@ def update_client(client):
 def run_game(clients):
     for client  in  clients:
         client.send_role()
+
     while True:
         #Check all the sockets
         pass
@@ -114,7 +115,7 @@ def main():
         clientsocket.setblocking(False)
         # now do something with the clientsocket
         # in this case, we'll pretend this is a threaded server
-        clientsocket.send(bytes(str(tank.to_json()), 'utf-8'))
+        #clientsocket.send(bytes(str(tank.to_json()), 'utf-8'))
         
         clients.append(Client(clientsocket))
 
