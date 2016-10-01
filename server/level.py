@@ -13,10 +13,7 @@ DEFAULT_BULLET_DAMAGE = 10
 DEFAULT_BULLET_SPEED = 2
 DEFAULT_ENEMY_HEALTH = 20
 SPAWN_FREQUENCY = 10
-<<<<<<< HEAD
 TANK_SIZE = 16
-=======
->>>>>>> db642cae8210448949129ddc8f146e0cbac9a837
 
 # The default probability for the enemies. Higher numbers result in lower frequencies
 DEFAULT_FIRING_FREQUENCY = 1
