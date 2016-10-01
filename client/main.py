@@ -6,6 +6,7 @@ import json
 import math
 import sdl2
 import sdl2.ext
+from socket_util import *
 
 WHITE = sdl2.ext.Color(255, 255, 255)
 GREEN = sdl2.ext.Color(150, 255, 120)
@@ -73,15 +74,6 @@ def run():
     s.close()
     return 0
 
-def decode_server_data(server_data):
-    data_chunks = []
-    while (server_data):
-        index = server_data.find('{')
-        bytes_to_read = int(server_data[0:index])
-        server_data = server_data[index:]
-        data_chunks.append(server_data[0:bytes_to_read])
-        server_data = server_data[bytes_to_read:]
-    return data_chunks
 
 
 if __name__ == "__main__":

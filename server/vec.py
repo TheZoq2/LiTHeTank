@@ -1,6 +1,7 @@
+import math
 
 def vec2_from_direction(angle, length):
-    Vec2(cos(angle), sin(angle)) * length
+    return Vec2(math.cos(angle), math.sin(angle)) * length
 
 class Vec2:
     def __init__(self, x, y = None):
@@ -24,5 +25,12 @@ class Vec2:
     
     def __mul__(self, other):
         return Vec2(self.x * other, self.y * other)
+
+    def __abs__(self):
+        return math.sqrt(self.x ** 2 + self.y ** 2)
+
+    def is_within_bounds(self, center_point, size):
+        """Checks whether this vector is within size distance from center_point"""
+        return abs(self - center_point) <= size
 
 

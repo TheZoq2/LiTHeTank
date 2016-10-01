@@ -2,14 +2,18 @@ import sdl2.ext
 from vec import Vec2, vec2_from_direction
 import random
 
+FIRE_LEFT = 0
+FIRE_RIGHT = 1
+
 DEFAULT_ENEMY_SIZE = 5
 DEFAULT_BULLET_DAMAGE = 10
 DEFAULT_BULLET_SPEED = 2
-
 DEFAULT_ENEMY_HEALTH = 20
+SPAWN_FREQUENCY = 100
 
 # The default probability for the enemies. Higher numbers result in lower frequencies
 DEFAULT_FIRING_FREQUENCY = 100
+
 
 class Enemy():
 
@@ -39,22 +43,27 @@ class Bullet():
 
 
 class Level():
-
-    FIRE_LEFT = 0
-    FIRE_RIGHT = 1
     
     def __init__(self, tank):
         self.tank = tank
         self.enemies = []
         self.bullets = []
 
-    def update(self):
+    def update(self, delta_time):
         if self.tank.firing_left:
             self._fire_tank(FIRE_LEFT)
             self.tank.firing_left = False
-        else:
+        elif self.tank.firing_right:
             self._fire_tank(FIRE_RIGHT)
             self.firing_right = False
+        self._update_bullet_positions(delta_time)
+        self._update_enemy_positions(delta_time)
+        self._fire_enemies(delta_time)
+        self._remove_dead_enemies()
+        # self._spawn_enemies(delta_time)
+
+    def to_json(self):
+        return json.dumps(self, default=lambda o: o.__dict__, sort_keys=True, indent=4)
 
     def _fire_tank(self, cannon):
         # TODO differentiate between left and right
@@ -62,21 +71,25 @@ class Level():
                                   self.tank.gun_angle + self.tank.angle))
     
     def _handle_bullet_collisions(self):
-        pass
-
-    def _update_bullet_positions(self):
         for bullet in self.bullets:
-            bullet.position += bullet.velocity
+            for enemy in self.enemies:
+                if bullet.position.is_within_bounds(enemy.position, enemy.size):
+                    enemy.health -= bullet.damage
+                    
 
-    def _update_enemy_positions(self):
+    def _update_bullet_positions(self, delta_time):
+        for bullet in self.bullets:
+            bullet.position += bullet.velocity * delta_time
+
+    def _update_enemy_positions(self, delta_time):
         pass
     
     def _remove_dead_enemies(self):
         self.enemies = [e for e in self.enemies if not e.is_dead()]
 
-    def _fire_enemies(self):
+    def _fire_enemies(self, delta_time):
         for enemy in self.enemies:
-            should_fire = not random.randint(0, enemy.firing_frequency)
+            should_fire = not random.randint(0, int(enemy.firing_frequency * (1 / delta_time)))
 
             # if the random number was 0, fire
             if should_fire:
@@ -85,9 +98,10 @@ class Level():
     def _enemy_fire(self, enemy):
         pass
     
-    def _spawn_enemy(self):
-        randx = random.randint(0, 1000)
-        randy = random.randint(0, 1000)
-        self.enemies.append(Enemy(Vec2(randx, randy)))
+    def _spawn_enemies(self, delta_time):
+        if not random.randint(0, int(SPAWN_FREQUENCY / delta_time)):
+            randx = random.randint(0, 1000)
+            randy = random.randint(0, 1000)
+            self.enemies.append(Enemy(Vec2(randx, randy)))
         
 

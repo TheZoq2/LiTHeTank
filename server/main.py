@@ -6,6 +6,7 @@ from vec import *
 import json
 from enum import Enum
 import select
+from level import *
 
 PORT = 2000
 
@@ -24,9 +25,9 @@ class Tank:
     def to_json(self):
         return json.dumps(self, default=lambda o: o.__dict__, sort_keys=True, indent=4)
 
-    def update(self):
-        add_speed = self.left_track + self.right_track
-        add_angle = -self.left_track + self.right_track
+    def update():
+        add_speed = left_track + right_track
+        add_angle = -left_track + right_track
 
         self.angle += add_angle
         self.position += vec2_from_direction(self.angle, add_speed)
@@ -68,8 +69,6 @@ class Client():
         self.role = role
 
     def send_role(self):
-        #self.socket.send(bytes('{"role":"' + role_to_string(self.role) + '"}', 'utf-8'))
-        #self.socket.send(bytes(get_client_msg("role", role_to_string(self.role)), 'utf-8'))
         send_msg_to_client(self.socket, get_client_msg("role", role_to_string(self.role)))
 
 
@@ -110,9 +109,12 @@ def run_game(clients):
         if healthy_conn:
             client.send_role()
 
+    tank = Tank()
+    level = Level(tank)
+
     while True:
         # Check all the sockets
-        pass
+        level.update(1)
 
 def main():
     # create an INET, STREAMing socket
