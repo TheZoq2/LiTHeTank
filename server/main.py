@@ -15,6 +15,7 @@ class Tank:
         self.health = 100
         self.position = Vec2(0,0)
         self.angle = 0
+        self.firing = False
 
         self.left_track = 0
         self.right_track = 0
@@ -52,6 +53,11 @@ role_list = [Role.COMMANDER, Role.GUNNER, Role.DRIVER]
 def get_client_msg(type, payload):
     return json.dumps({"type": type, "data": payload},)
 
+def send_msg_to_client(socket, msg):
+    final_msg = "{}{}".format(len(msg), msg)
+
+    socket.send(bytes(final_msg, 'utf-8'))
+
 class Client():
     def __init__(self, socket):
         self.socket = socket
@@ -62,7 +68,8 @@ class Client():
 
     def send_role(self):
         #self.socket.send(bytes('{"role":"' + role_to_string(self.role) + '"}', 'utf-8'))
-        self.socket.send(bytes(get_client_msg("role", role_to_string(self.role)), 'utf-8'))
+        #self.socket.send(bytes(get_client_msg("role", role_to_string(self.role)), 'utf-8'))
+        send_msg_to_client(self.socket, get_client_msg("role", role_to_string(self.role)))
 
 
 def distribute_roles(clients):

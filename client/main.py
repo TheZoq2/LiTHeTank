@@ -16,6 +16,12 @@ class SoftwareRenderer(sdl2.ext.SoftwareSpriteRenderSystem):
         sdl2.ext.fill(self.surface, sdl2.ext.Color(0, 0, 0))
         super(SoftwareRenderer, self).render(components)
 
+def create_message_template(type, payload):
+    return json.dumps({"type": type, "data": payload},)
+
+def request_data_from_server(socket):
+    #create_message_template(type)
+    pass
 
 def run():
     # create an INET, STREAMing socket
