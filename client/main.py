@@ -62,7 +62,7 @@ def run():
         for ready in ready_to_read:
             server_data = ready.recv(10240).decode("utf-8")
 
-            decoded_server_data = decode_server_data(server_data)
+            decoded_server_data = decode_socket_data(server_data)
 
             for data in decoded_server_data:
                 loaded_data = json.loads(data)

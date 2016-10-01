@@ -9,6 +9,7 @@ import select
 from level import *
 import time
 import pdb
+from socket_util import *
 
 PORT = 2000
 
@@ -54,13 +55,6 @@ def role_to_string(role):
 role_list = [Role.COMMANDER, Role.GUNNER, Role.DRIVER]
 
 
-def get_client_msg(type, payload):
-    return json.dumps({"type": type, "data": payload},)
-
-def send_msg_to_client(socket, msg):
-    final_msg = "{}{}".format(len(msg), msg)
-
-    socket.send(bytes(final_msg, 'utf-8'))
 
 class Client():
     def __init__(self, socket):
@@ -71,7 +65,7 @@ class Client():
         self.role = role
 
     def send_role(self):
-        send_msg_to_client(self.socket, get_client_msg("role", role_to_string(self.role)))
+        send_msg_to_socket(self.socket, create_socket_msg("role", role_to_string(self.role)))
 
 
 def distribute_roles(clients):
@@ -87,7 +81,7 @@ def distribute_roles(clients):
         return (None, "You need {} players to play".format(len(role_list)))
 
 
-def update_client(client):
+def update_client(client, level):
     (ready_to_read, ready_to_write, in_error) = select.select(
                     [client.socket],
                     [client.socket],
@@ -96,20 +90,31 @@ def update_client(client):
                 )
 
     for s in ready_to_read:
-        data = s.recv(4096)
+        data = s.recv(10000).decode('utf-8')
         if not data:
             print("Lost connection to client")
             s.close()
             return False
+        else:
+            decoded = decode_socket_data(data)
+
+            for msg in decoded:
+                msg_dict = json.loads(msg)
+
+                if msg_dict["type"] == "request_data":
+                    send_msg_to_socket(self.socket, create_socket_msg("update", level.to_json()))
+                else:
+                    handle_game_msg_from_client(client, level)
 
     return True
 
 
+def handle_game_msg_from_client(client, level):
+    pass
+
 def run_game(clients):
     for client in clients:
-        healthy_conn = update_client(client)
-        if healthy_conn:
-            client.send_role()
+        client.send_role()
 
     tank = Tank()
     level = Level(tank)
@@ -121,12 +126,17 @@ def run_game(clients):
         old_time = new_time
         # Check all the sockets
         level.update(delta_t)
-        print(level.to_json())
+
+        for client in clients:
+            update_client(client, level)
+
+
 
 def main():
     # create an INET, STREAMing socket
     serversocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     # bind the socket to a public host, and a well-known port
+    serversocket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
     serversocket.bind(("", PORT))
     # become a server socket
     serversocket.listen(5)
@@ -150,7 +160,5 @@ def main():
         if len(clients) == len(role_list):
             clients = distribute_roles(clients)
             run_game(clients)
-            #print(clients)
-
 
 main()

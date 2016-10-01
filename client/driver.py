@@ -6,8 +6,12 @@ from socket_util import *
 def driver_main(spriterenderer, factory, s):
     print("I'm a driver!")
 
-    compass = load_sprite("driver_background.png", factory)
+    background = load_sprite("driver_background.png", factory)
+    spriterenderer.render([background])
     tank_angle = 0
+
+    # TODO add needle
+    compass = load_sprite("tank top.png", factory)
 
     running = True
 
@@ -25,7 +29,7 @@ def driver_main(spriterenderer, factory, s):
 
             server_data = ready.recv(10240).decode("utf-8")
 
-            decoded_server_data = decode_server_data(server_data)
+            decoded_server_data = decode_socket_data(server_data)
 
 
             for data in decoded_server_data:
