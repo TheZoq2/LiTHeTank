@@ -98,6 +98,8 @@ def commander_main(renderer, factory, socket):
     tank_health_green.center = False
 
     old_frame_time = time.time()
+    
+    created_explosions = {}
 
     create_explosion(vec.Vec2(100, 100), 50, particles, explosion_sprites)
 
@@ -139,6 +141,10 @@ def commander_main(renderer, factory, socket):
                     update_tank_sprite(tank_top_sprite, tank_bottom_sprite,
                                        tank_data, tank_health_red, tank_health_green)
 
+                    explosions = loaded_data["explosions"]
+                    _handle_explosions(particles, explosion_sprites, created_explosions, explosions)
+
+
                     score = loaded_data["score"]
                     score_sprite = ru.render_text("score: " + str(score), factory)
                     score_sprite.x = 320 // 2 - score_sprite.size[0] // 2
@@ -177,7 +183,7 @@ def commander_main(renderer, factory, socket):
 
         for p in particles:
             p.update(delta_t)
-            p.render(renderer)
+            p.render(renderer, camera_position)
 
         particles = [a for a in particles if a.is_alive]
 
@@ -255,5 +261,26 @@ def update_tank_sprite(tank_top_sprite, tank_bottom_sprite,
     #tank_top_sprite.angle = tank["gun_angle"]
     tank_bottom_sprite.angle = tank_data["angle"] / math.pi * 180
     tank_top_sprite.angle = tank_data["gun_angle"] / math.pi * 180
+
+
+def _handle_explosions(particles, explosion_sprites, created_explosions, explosions):
+    for exp in explosions:
+        id = exp["id"]
+        position = exp["position"]
+        x = position["x"]
+        y = position["y"]
+
+        if id not in created_explosions:
+            particles.append(create_explosion(vec.Vec2(x, y), 0, particles, explosion_sprites))
+            created_explosions["id"] = id
+
+
+
+
+
+
+
+
+
 
 

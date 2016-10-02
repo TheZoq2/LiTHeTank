@@ -114,6 +114,11 @@ class Bullet():
         self.velocity = vec2_from_direction(angle, speed)
         self.damage = damage
 
+class Explosion:
+    def __init__(self, position, id):
+        self.time_alive = 0
+        self.position = position
+        self.id = id
 
 class Level():
 
@@ -122,6 +127,8 @@ class Level():
         self.tank = tank
         self.enemies = []
         self.bullets = []
+        self.explosions = []
+        self.next_explossion_id = 0
         self.score = 0
         self._spawn_an_enemy()
         self._spawn_an_enemy()
@@ -143,9 +150,18 @@ class Level():
         self._spawn_enemies(delta_time)
         self._spawn_airstrike(delta_time)
 
+        self._update_explosions(delta_time)
+
+
+    def _update_explosions(self,  delta_time):
+        for exp in self.explosions:
+            exp.time_alive += delta_time
+
+        self.explosions = [e for e in self.explosions if e.time_alive < 0.1]
 
     def _add_explosion(self, pos, strength):
-        pass
+        self.explosions.append(Explosion(pos, self.next_explossion_id))
+        self.next_explossion_id += 1
 
     def to_json(self):
         return json.dumps(self, default=lambda o: o.__dict__, sort_keys=True, indent=4)
