@@ -1,3 +1,4 @@
+import vec
 import render_util as ru
 
 
@@ -11,6 +12,23 @@ def load_smoke_particles(factory):
         ru.load_sprite("smoke6.png", factory),
         ru.load_sprite("smoke7.png", factory)
     ]
+
+def load_explosion_particles(factory):
+    return [
+        ru.load_sprite("explosion1.png", factory),
+        ru.load_sprite("explosion2.png", factory),
+        ru.load_sprite("explosion3.png", factory),
+        ru.load_sprite("explosion4.png", factory),
+        ru.load_sprite("explosion5.png", factory),
+        ru.load_sprite("explosion6.png", factory)
+    ]
+
+def create_smoke_particle(pos, sprite_list):
+    return Particle(pos, vec.Vec2(0,10), 1.3, sprite_list)
+
+def create_explosion_particle(pos, vel, sprite_list):
+    return Particle(pos, vel, 0.1, sprite_list)
+
 
 class Particle:
     def __init__(self, pos, vel, sprite_time, sprite_list):
@@ -28,7 +46,9 @@ class Particle:
 
         if self.this_index_time > self.sprite_time:
             self.current_index += 1
+            self.this_index_time = 0
 
+            print(self.current_index)
             if self.current_index >= len(self.sprite_list):
                 self.is_alive = False
 
