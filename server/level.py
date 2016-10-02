@@ -116,6 +116,9 @@ class Level():
         self._spawn_enemies(delta_time)
         self._spawn_airstrike(delta_time)
 
+    def _add_explosion(self, pos, strength):
+        pass
+
     def to_json(self):
         return json.dumps(self, default=lambda o: o.__dict__, sort_keys=True, indent=4)
 
