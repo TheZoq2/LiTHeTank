@@ -161,7 +161,7 @@ class Level():
 
     def _spawn_airstrike(self, delta_time):
         if self.air_strike is None and \
-           not random.randint(0, int(AIR_STRIKE_FREQUENCY * delta_time)):
+           (not random.randint(0, int(AIR_STRIKE_FREQUENCY * delta_time))):
             self.air_strike = AirStrike(self.tank.position)
 
     def _fire_tank(self, cannon):
