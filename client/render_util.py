@@ -17,7 +17,6 @@ def render_sprites(sprites, renderer):
                                         None,
                                         sdl2.render.SDL_FLIP_NONE) == -1:
             return False
-    sdl2.render.SDL_RenderPresent(renderer.sdlrenderer)
 
 def load_sprite(path, factory):
     sprite = factory.from_image(RESOURCES.get_path(path))

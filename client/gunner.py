@@ -84,3 +84,4 @@ def gunner_main(renderer, factory, s):
 
         compass_needle.angle = -gun_angle
         render_sprites([background, compass_needle], renderer)
+        sdl2.render.SDL_RenderPresent(renderer.sdlrenderer)
