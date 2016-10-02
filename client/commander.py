@@ -16,7 +16,7 @@ def commander_main(renderer, factory, socket):
     tank_angle = 0
 
     # TODO add needle
-    tank_sprite = ru.load_sprite("tank top.png", factory)
+    tank_top_sprite = ru.load_sprite("tank top.png", factory)
 
     running = True
 
@@ -40,17 +40,18 @@ def commander_main(renderer, factory, socket):
 
             decoded_server_data = decode_socket_data(server_data)
 
-            tank_sprite.x = 200
-            tank_sprite.y = 200
+            tank_top_sprite.x = 200
+            tank_top_sprite.y = 200
 
             for data in decoded_server_data:
                 (type, loaded_data) = decode_socket_json_msg(data)
                 if type == "update":
                     tank = loaded_data["tank"]
-                    #tank_sprite.x = tank["position"]["x"]
-                    #tank_sprite.y = tank["position"]["y"]
+                    tank_top_sprite.x = tank["position"]["x"]
+                    tank_top_sprite.y = tank["position"]["y"]
+                    tank_top_sprite.angle = tank["gun_angle"]
 
-                    print("Got update msg with x {} y {}".format(tank["position"]["x"],tank["position"]["y"]))
+                   #print("Got update msg with x {} y {}".format(tank["position"]["x"],tank["position"]["y"]))
 
             if not server_data:
                 print("Server disconnected")
@@ -59,7 +60,6 @@ def commander_main(renderer, factory, socket):
             if server_data == b"exit":
                 running = False
 
-        #compass.angle = -tank_angle
-        ru.render_sprites([tank_sprite], renderer)
+        ru.render_sprites([tank_top_sprite], renderer)
 
 

@@ -24,8 +24,8 @@ def request_data_from_server(socket):
 
 def create_window():
     sdl2.ext.init()
-    window_size = (1200, 700)
-    window = sdl2.ext.Window("LiTHe Spank", size=window_size)
+    window_size = (1280, 720)
+    window = sdl2.ext.Window("LiTHe Tank", size=window_size)
     renderer = sdl2.ext.Renderer(window)
     renderer.scale = (4, 4)
     window.show()
@@ -43,19 +43,9 @@ def run():
     s.connect(("localhost", 2000))
     s.setblocking(False)
 
-<<<<<<< Updated upstream
     window, renderer, factory = create_window()
-    turret = load_sprite("tank top.png", factory)
-    tank = load_sprite("tank bot.png", factory)
-    background = factory.from_color(GREEN, size=(300, 175))
+    background = factory.from_color(GREEN, size=(320, 180))
     background.angle = 0
-=======
-    #window, renderer, factory = create_window()
-    #turret = load_sprite("tank top.png", factory)
-    #tank = load_sprite("tank bot.png", factory)
-    #background = factory.from_color(GREEN, size=(320, 180))
-    #background.angle = 0
->>>>>>> Stashed changes
 
     running = True
     while running:
@@ -90,13 +80,7 @@ def run():
             if server_data == b"exit":
                 running = False
 
-        #global yolo
-        #yolo += 1
-        #tank.y = int(50 * math.sin(yolo / 300)) + 80
-        #turret.y = int(50 * math.sin(yolo / 300)) + 80
-        #tank.angle = yolo / 10
-        #turret.angle = math.sin(yolo/300)
-        #render_sprites([background, tank, turret], renderer)
+        render_sprites([background], renderer)
 
     s.shutdown(socket.SHUT_WR)
     s.close()

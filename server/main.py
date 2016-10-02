@@ -103,7 +103,10 @@ def update_client(client, level):
 
                 if msg_dict["type"] == "update":
                     send_msg_to_socket(client.socket, create_socket_msg("update", level.to_json()))
-
+                if msg_dict["type"] == "rotate_gun_right":
+                    level.tank.gun_angle += 1
+                if msg_dict["type"] == "rotate_gun_left":
+                    level.tank.gun_angle -= 1
                 else:
                     handle_game_msg_from_client(client, level)
 
@@ -118,8 +121,8 @@ def run_game(clients):
         client.send_role()
 
     tank = Tank()
-    tank.position.x = 500
-    tank.position.y = 500
+    tank.position.x = 100
+    tank.position.y = 100
     level = Level(tank)
 
     old_time = time.time()
