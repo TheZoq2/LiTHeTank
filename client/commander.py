@@ -73,19 +73,20 @@ def commander_main(renderer, factory, socket):
                 running = False
 
         ru.render_sprites([background, tank_bottom_sprite, tank_top_sprite], renderer)
-        _render_enemies(enemies, renderer, factory, enemy_sprite)
-        _render_bullets(bullets, renderer, factory, bullet_sprite)
+        _render_enemies(enemies, renderer, enemy_sprite)
+        _render_bullets(bullets, renderer, bullet_sprite)
+        sdl2.render.SDL_RenderPresent(renderer.sdlrenderer)
 
 
-def _render_enemies(enemies, renderer, factory, enemy_sprite):
+def _render_enemies(enemies, renderer, enemy_sprite):
     for enemy in enemies:
         enemy_sprite.x = int(enemy["position"]["x"])
         enemy_sprite.y = int(enemy["position"]["y"])
         enemy_sprite.angle = vec.radians_to_degrees(enemy["angle"])
         ru.render_sprites([enemy_sprite], renderer)
-        
 
-def _render_bullets(bullets, renderer, factory, bullet_sprite):
+
+def _render_bullets(bullets, renderer, bullet_sprite):
     for bullet in bullets:
         bullet_sprite.x = int(bullet["position"]["x"])
         bullet_sprite.y = int(bullet["position"]["y"])
