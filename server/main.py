@@ -118,8 +118,8 @@ def run_game(clients):
         client.send_role()
 
     tank = Tank()
-    tank.position.x = 500
-    tank.position.y = 500
+    tank.position.x = 100
+    tank.position.y = 100
     level = Level(tank)
 
     old_time = time.time()

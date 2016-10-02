@@ -47,8 +47,8 @@ def commander_main(renderer, factory, socket):
                 (type, loaded_data) = decode_socket_json_msg(data)
                 if type == "update":
                     tank = loaded_data["tank"]
-                    #tank_sprite.x = tank["position"]["x"]
-                    #tank_sprite.y = tank["position"]["y"]
+                    tank_sprite.x = tank["position"]["x"]
+                    tank_sprite.y = tank["position"]["y"]
 
                     print("Got update msg with x {} y {}".format(tank["position"]["x"],tank["position"]["y"]))
 
