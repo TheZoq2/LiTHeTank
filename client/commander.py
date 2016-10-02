@@ -12,6 +12,9 @@ import time
 
 WHITE = sdl2.ext.Color(255, 255, 255)
 GREEN = sdl2.ext.Color(150, 255, 120)
+RED = sdl2.ext.Color(255, 0, 0)
+HEALTH_BAR_HEIGHT = 4
+HEALTH_BAR_WIDTH = 16
 
 def commander_main(renderer, factory, socket):
     print("I'm a commander!")
@@ -87,6 +90,12 @@ def commander_main(renderer, factory, socket):
 
 def _render_enemies(enemies, renderer, enemy_sprite, enemy_turret_sprite):
     for enemy in enemies:
+        health_red = ru.create_rect(RED, (HEALTH_BAR_HEIGHT, HEALTH_BAR_WIDTH))
+        health_green = ru.create_rect(GREEN, (HEALTH_BAR_HEIGHT, 
+                               HEALTH_BAR_WIDTH * enemy["health"]))
+        health_red.center = False
+        health_green.center = False
+        
         x = int(enemy["position"]["x"])
         y = int(enemy["position"]["y"])
         enemy_sprite.x = x

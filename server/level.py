@@ -41,6 +41,15 @@ def turn_angle_to_angle(angle, target_angle, speed, threshold):
         return (angle, True)
 
 
+# class AirStrike():
+# 
+#     def __init__(self, target):
+#         self.target = target
+#         pos, velocity = None
+# 
+#     #def _generate
+
+
 class Enemy():
 
     def __init__(self, position,
@@ -74,6 +83,7 @@ class Bullet():
 class Level():
 
     def __init__(self, tank):
+        self.air_strike = None
         self.tank = tank
         self.enemies = []
         self.bullets = []
