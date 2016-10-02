@@ -4,6 +4,7 @@ import math
 import random
 import json
 import pdb
+from enum import Enum
 
 FIRE_LEFT = 0
 FIRE_RIGHT = 1
@@ -15,10 +16,14 @@ DEFAULT_ENEMY_HEALTH = 20
 SPAWN_FREQUENCY = 1
 TANK_SIZE = 16
 MAXIMUM_SPAWN_DISTANCE = 100
-ENEMY_SPEED = 100
+ENEMY_SPEED = 20
+ENEMY_TURN_SPEED  = math.pi / 2
 
 # The default probability for the enemies. Higher numbers result in lower frequencies
 DEFAULT_FIRING_FREQUENCY = 10
+
+HUNTING = 0,
+SHOOTING = 1,
 
 
 class Enemy():
@@ -33,13 +38,14 @@ class Enemy():
         self.health = health
         self.size = size
         self.firing_frequency = firing_frequency
+        self.state = HUNTING
+        self.turret_angle = 0
 
     def is_dead(self):
         return self.health <= 0
 
 
 class Bullet():
-
     def __init__(self, position, angle,
                  speed=DEFAULT_BULLET_SPEED,
                  damage=DEFAULT_BULLET_DAMAGE):
@@ -105,8 +111,32 @@ class Level():
 
     def _update_enemy_positions(self, delta_time):
         for enemy in self.enemies:
-            enemy.angle = -enemy.position.relative_angle_to(self.tank.position)
-            enemy.position += vec2_from_direction(enemy.angle, ENEMY_SPEED * delta_time)
+            shoot_range = (50, 100)
+
+            enemy_to_tank = enemy.position - self.tank.position
+
+            if enemy.state == HUNTING:
+                #enemy.angle = -enemy.position.relative_angle_to(self.tank.position)
+                #enemy.position += vec2_from_direction(enemy.angle, ENEMY_SPEED * delta_time)
+                enemy_to_tank = enemy.position - self.tank.position
+                if abs(enemy_to_tank) > shoot_range[1]:
+                    target_angle = enemy.position.relative_angle_to(self.tank.position)
+
+                    angle_diff = abs(target_angle - enemy.angle)
+                    angle_diff = ((angle_diff + math.pi) % (math.pi * 2)) - math.pi
+                    if abs(angle_diff) > math.pi / 5:
+                        if angle_diff < 0:
+                            enemy.angle += ENEMY_TURN_SPEED * delta_time
+                        else:
+                            enemy.angle -= ENEMY_TURN_SPEED * delta_time
+                    else:
+                        enemy.position -= vec2_from_direction(enemy.angle, ENEMY_SPEED * delta_time)
+                else:
+                    enemy.state = SHOOTING
+            elif enemy.state == SHOOTING:
+                if abs(enemy_to_tank) < shoot_range[0] or abs(enemy_to_tank) > shoot_range[1]:
+                    enemy.state = HUNTING
+
 
     def _remove_dead_enemies(self):
         self.enemies = [e for e in self.enemies if not e.is_dead()]

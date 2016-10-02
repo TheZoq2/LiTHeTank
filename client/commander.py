@@ -22,7 +22,8 @@ def commander_main(renderer, factory, socket):
     # TODO add needle
     tank_top_sprite = ru.load_sprite("tank top.png", factory)
     tank_bottom_sprite = ru.load_sprite("tank bot.png", factory)
-    enemy_sprite = ru.load_sprite("enemy.png", factory)
+    enemy_sprite = ru.load_sprite("enemy1_body.png", factory)
+    enemy_turret_sprite  = ru.load_sprite("enemy1_turret.png", factory)
     bullet_sprite = ru.load_sprite("bullet_normal.png", factory)
     background = factory.from_color(GREEN, size=(320, 180))
     background.angle = 0
@@ -73,17 +74,21 @@ def commander_main(renderer, factory, socket):
                 running = False
 
         ru.render_sprites([background, tank_bottom_sprite, tank_top_sprite], renderer)
-        _render_enemies(enemies, renderer, enemy_sprite)
+        _render_enemies(enemies, renderer, enemy_sprite, enemy_turret_sprite)
         _render_bullets(bullets, renderer, bullet_sprite)
         sdl2.render.SDL_RenderPresent(renderer.sdlrenderer)
 
 
-def _render_enemies(enemies, renderer, enemy_sprite):
+def _render_enemies(enemies, renderer, enemy_sprite, enemy_turret_sprite):
     for enemy in enemies:
-        enemy_sprite.x = int(enemy["position"]["x"])
-        enemy_sprite.y = int(enemy["position"]["y"])
+        x = int(enemy["position"]["x"])
+        y = int(enemy["position"]["y"])
+        enemy_sprite.x = x
+        enemy_sprite.y = y
+        enemy_turret_sprite.x = x
+        enemy_turret_sprite.y = y
         enemy_sprite.angle = vec.radians_to_degrees(enemy["angle"])
-        ru.render_sprites([enemy_sprite], renderer)
+        ru.render_sprites([enemy_sprite, enemy_turret_sprite], renderer)
 
 
 def _render_bullets(bullets, renderer, bullet_sprite):
