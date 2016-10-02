@@ -13,27 +13,28 @@ def load_smoke_particles(factory):
     ]
 
 class Particle:
-    def __init__(pos, vel, sprite_time, sprite_list):
+    def __init__(self, pos, vel, sprite_time, sprite_list):
         self.pos = pos
         self.vel = vel
         self.sprite_list = sprite_list
         self.sprite_time = sprite_time
         self.current_index = 0
         self.this_index_time = 0
-        self.is_dead = False
+        self.is_alive = True
 
-    def update(delta_t):
+    def update(self, delta_t):
         self.pos += self.vel * delta_t
         self.this_index_time += delta_t
 
         if self.this_index_time > self.sprite_time:
             self.current_index += 1
 
-            if self.current_index > len(self.sprite_list):
-                self.is_dead = True
+            if self.current_index >= len(self.sprite_list):
+                self.is_alive = False
 
-    def draw(renderer):
-        sprite = self.sprite_list[self.current_index]
-        sprite.x = self.pos.x
-        sprite.y = self.pos.y
-        ru.render_sprites([sprite], renderer)
+    def render(self, renderer):
+        if self.is_alive:
+            sprite = self.sprite_list[self.current_index]
+            sprite.x = round(self.pos.x)
+            sprite.y = round(self.pos.y)
+            ru.render_sprites([sprite], renderer)

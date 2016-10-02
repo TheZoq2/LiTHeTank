@@ -10,6 +10,7 @@ from constants import SCREEN_HEIGHT, SCREEN_WIDTH
 import pdb
 import math
 import time
+import particle_effect as particle
 
 WHITE = sdl2.ext.Color(255, 255, 255)
 GREEN = sdl2.ext.Color(150, 255, 120)
@@ -56,13 +57,24 @@ def commander_main(renderer, factory, socket):
     needs_update = True
     last_update = time.time()
 
+    particles = []
+    particles.append(particle.Particle(vec.Vec2(100, 100), vec.Vec2(5,5), 0.5, particle.load_smoke_particles(factory)))
+
+
+
+    #Health bar stuff
     tank_health_red = ru.create_rect(RED, (HEALTH_BAR_WIDTH, HEALTH_BAR_HEIGHT), factory)
     tank_health_green = ru.create_rect(HEALTH_GREEN,
                                        (HEALTH_BAR_WIDTH, HEALTH_BAR_HEIGHT), factory)
     tank_health_red.center = False
     tank_health_green.center = False
 
+    old_frame_time = time.time()
+
     while running:
+        new_frame_time = time.time()
+        delta_t =  new_frame_time - old_frame_time
+        old_frame_time = new_frame_time
 
         events = sdl2.ext.get_events()
         for event in events:
@@ -125,6 +137,14 @@ def commander_main(renderer, factory, socket):
         _render_enemies(enemies, renderer, enemy_sprite,
                         enemy_turret_sprite, camera_position, factory)
         _render_bullets(bullets, renderer, bullet_sprite, camera_position)
+
+        for p in particles:
+            p.update(delta_t)
+            p.render(renderer)
+
+        particles = [a for a in particles if a.is_alive]
+
+
         sdl2.render.SDL_RenderPresent(renderer.sdlrenderer)
 
 
