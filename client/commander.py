@@ -13,8 +13,13 @@ import time
 
 WHITE = sdl2.ext.Color(255, 255, 255)
 GREEN = sdl2.ext.Color(150, 255, 120)
+
+HEALTH_GREEN = sdl2.ext.Color(0, 255, 0)
+
+HEALTH_BAR_OFFSET = 20
+
 RED = sdl2.ext.Color(255, 0, 0)
-HEALTH_BAR_HEIGHT = 4
+HEALTH_BAR_HEIGHT = 2
 HEALTH_BAR_WIDTH = 16
 
 SCROLL_BORDER = 50
@@ -81,7 +86,8 @@ def commander_main(renderer, factory, socket):
                     tank_data = loaded_data["tank"]
                     enemies = loaded_data["enemies"]
                     bullets = loaded_data["bullets"]
-                    update_tank_sprite(tank_top_sprite, tank_bottom_sprite, tank_data)
+                    update_tank_sprite(tank_top_sprite, tank_bottom_sprite, 
+                                       tank_data, renderer, factory)
 
             if not server_data:
                 print("Server disconnected")
@@ -101,38 +107,42 @@ def commander_main(renderer, factory, socket):
             camera_position.y += 1
 
         tile_size = tiles[0].size[0]
-        for x in range(SCREEN_WIDTH // tile_size + 1):
-            for y in range(SCREEN_HEIGHT // tile_size + 2):
+        for x in range(SCREEN_WIDTH // tile_size + 2):
+            for y in range(SCREEN_HEIGHT // tile_size + 3):
                 tile_x = camera_position.x // tile_size + x
                 tile_y = camera_position.y // tile_size + y
                 render_tile(tile_x, tile_y, tiles, renderer, camera_position)
 
-        ru.render_sprites([tank_bottom_sprite, tank_top_sprite],
-                          renderer, cam_pos = camera_position)
-        _render_enemies(enemies, renderer, enemy_sprite, enemy_turret_sprite,
-                        camera_position)
+        ru.render_sprites([tank_bottom_sprite, tank_top_sprite], renderer, camera_position)
+        _render_enemies(enemies, renderer, enemy_sprite, enemy_turret_sprite, camera_position, factory)
         _render_bullets(bullets, renderer, bullet_sprite, camera_position)
         sdl2.render.SDL_RenderPresent(renderer.sdlrenderer)
 
 
-def _render_enemies(enemies, renderer, enemy_sprite, enemy_turret_sprite, cam_pos):
+def _render_enemies(enemies, renderer, enemy_sprite, enemy_turret_sprite, cam_pos, factory):
     for enemy in enemies:
-        health_red = ru.create_rect(RED, (HEALTH_BAR_HEIGHT, HEALTH_BAR_WIDTH))
-        health_green = ru.create_rect(GREEN, (HEALTH_BAR_HEIGHT, 
-                               HEALTH_BAR_WIDTH * enemy["health"]))
+        health_red = ru.create_rect(RED, (HEALTH_BAR_WIDTH, HEALTH_BAR_HEIGHT), factory)
+        health_green = ru.create_rect(HEALTH_GREEN,
+                                      (int(HEALTH_BAR_WIDTH *
+                                       (enemy["health"] / enemy["original_health"])),
+                                                    HEALTH_BAR_HEIGHT), factory)
         health_red.center = False
         health_green.center = False
-        
+
         x = int(enemy["position"]["x"])
         y = int(enemy["position"]["y"])
+        health_red.x = x
+        health_red.y = y - HEALTH_BAR_OFFSET
+        health_green.x = x
+        health_green.y = y - HEALTH_BAR_OFFSET
         enemy_sprite.x = x
         enemy_sprite.y = y
         enemy_turret_sprite.x = x
         enemy_turret_sprite.y = y
         enemy_sprite.angle = vec.radians_to_degrees(enemy["angle"])
         enemy_turret_sprite.angle = vec.radians_to_degrees(enemy["turret_angle"])
-        ru.render_sprites([enemy_sprite, enemy_turret_sprite], renderer,
-                          cam_pos = cam_pos)
+        ru.render_sprites([enemy_sprite, enemy_turret_sprite, health_red, health_green],
+                          renderer, cam_pos)
 
 
 def _render_bullets(bullets, renderer, bullet_sprite, cam_pos):
@@ -144,9 +154,21 @@ def _render_bullets(bullets, renderer, bullet_sprite, cam_pos):
         ru.render_sprites([bullet_sprite], renderer, cam_pos = cam_pos)
 
 
-def update_tank_sprite(tank_top_sprite, tank_bottom_sprite, tank_data):
+def update_tank_sprite(tank_top_sprite, tank_bottom_sprite, tank_data, renderer, factory):
     x = round(tank_data["position"]["x"])
     y = round(tank_data["position"]["y"])
+    health_red = ru.create_rect(RED, (HEALTH_BAR_WIDTH, HEALTH_BAR_HEIGHT), factory)
+    health_green = ru.create_rect(HEALTH_GREEN,
+                                  (int(HEALTH_BAR_WIDTH *
+                                   (tank_data["health"] / tank_data["original_health"])),
+                                                HEALTH_BAR_HEIGHT), factory)
+    health_red.center = False
+    health_green.center = False
+    health_red.x = x
+    health_red.y = y - HEALTH_BAR_OFFSET
+    health_green.x = x
+    health_green.y = y - HEALTH_BAR_OFFSET
+
     tank_bottom_sprite.x = x
     tank_bottom_sprite.y = y
     tank_top_sprite.x = x
@@ -154,3 +176,6 @@ def update_tank_sprite(tank_top_sprite, tank_bottom_sprite, tank_data):
     #tank_top_sprite.angle = tank["gun_angle"]
     tank_bottom_sprite.angle = tank_data["angle"] / math.pi * 180
     tank_top_sprite.angle = tank_data["gun_angle"] / math.pi * 180
+
+    ru.render_sprites([health_red, health_green], renderer)
+
