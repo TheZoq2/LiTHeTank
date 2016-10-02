@@ -55,7 +55,7 @@ class Bullet():
 
 
 def turn_angle_to_angle(angle, target_angle, speed, threshold):
-    angle_diff = abs(angle - target_angle)
+    angle_diff = abs(target_angle - angle)
     angle_diff = ((angle_diff + math.pi) % (math.pi * 2)) - math.pi
     if abs(angle_diff) > threshold:
         if angle_diff < 0:
@@ -125,21 +125,31 @@ class Level():
             shoot_range = (50, 100)
 
             enemy_to_tank = enemy.position - self.tank.position
-
+            target_angle = enemy.position.relative_angle_to(self.tank.position)
             if enemy.state == HUNTING:
-                target_angle = enemy.position.relative_angle_to(self.tank.position)
                 #enemy.position += vec2_from_direction(enemy.angle, ENEMY_SPEED * delta_time)
-                enemy_to_tank = enemy.position - self.tank.position
-                if abs(enemy_to_tank) > shoot_range[1]:
+                if abs(enemy_to_tank) > shoot_range[1] or abs(enemy_to_tank) < shoot_range[0]:
                     (enemy.angle, has_to_turn) = turn_angle_to_angle(
                                         enemy.angle, 
                                         target_angle, 
                                         ENEMY_TURN_SPEED * delta_time,
-                                        math.pi / 7)
-                    enemy.position += vec2_from_direction(enemy.angle, ENEMY_SPEED * delta_time)
+                                        math.pi / 6)
+
+                    if abs(enemy_to_tank) > shoot_range[1]:
+                        enemy.position += vec2_from_direction(enemy.angle, ENEMY_SPEED * delta_time)
+                    else:
+                        enemy.position -= vec2_from_direction(enemy.angle, ENEMY_SPEED * delta_time)
+                else:
+                    enemy.state = SHOOTING
             elif enemy.state == SHOOTING:
                 if abs(enemy_to_tank) < shoot_range[0] or abs(enemy_to_tank) > shoot_range[1]:
                     enemy.state = HUNTING
+                else:
+                    (enemy.turret_angle, has_to_turn) = turn_angle_to_angle(
+                                        enemy.turret_angle, 
+                                        target_angle, 
+                                        ENEMY_TURN_SPEED * delta_time,
+                                        math.pi / 9)
 
 
     

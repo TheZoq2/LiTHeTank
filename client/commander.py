@@ -88,6 +88,7 @@ def _render_enemies(enemies, renderer, enemy_sprite, enemy_turret_sprite):
         enemy_turret_sprite.x = x
         enemy_turret_sprite.y = y
         enemy_sprite.angle = vec.radians_to_degrees(enemy["angle"])
+        enemy_turret_sprite.angle = vec.radians_to_degrees(enemy["turret_angle"])
         ru.render_sprites([enemy_sprite, enemy_turret_sprite], renderer)
 
 
