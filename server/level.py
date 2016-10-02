@@ -161,7 +161,6 @@ class Level():
             for enemy in self.enemies:
                 if bullet.position.is_within_bounds(enemy.position, enemy.size):
                     enemy.health -= bullet.damage
-                    self.bullets.remove(bullet)
                     bullets_to_remove.append(bullet)
                     print("ENEMY HIT")
         self.bullets = [bullet for bullet in self.bullets if bullet not in bullets_to_remove]
