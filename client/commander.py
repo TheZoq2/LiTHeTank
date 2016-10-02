@@ -5,6 +5,7 @@ import json
 import render_util as ru
 from select import select
 from socket_util import *
+import pdb
 
 
 def commander_main(renderer, factory, socket):
@@ -35,17 +36,21 @@ def commander_main(renderer, factory, socket):
 
         for ready in ready_to_read:
 
-            server_data = ready.recv(10240).decode("utf-8")
+            server_data = ready.recv(102400).decode("utf-8")
 
             decoded_server_data = decode_socket_data(server_data)
 
+            tank_sprite.x = 200
+            tank_sprite.y = 200
 
             for data in decoded_server_data:
-                loaded_data = json.loads(data)
-                if loaded_data["type"] == "update":
-                    tank = loaded_data["data"]["tank"]
-                    tank_sprite.x = 50
-                    tank_sprite.y = 50
+                (type, loaded_data) = decode_socket_json_msg(data)
+                if type == "update":
+                    tank = loaded_data["tank"]
+                    #tank_sprite.x = tank["position"]["x"]
+                    #tank_sprite.y = tank["position"]["y"]
+
+                    print("Got update msg with x {} y {}".format(tank["position"]["x"],tank["position"]["y"]))
 
             if not server_data:
                 print("Server disconnected")
