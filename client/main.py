@@ -43,11 +43,19 @@ def run():
     s.connect(("localhost", 2000))
     s.setblocking(False)
 
+<<<<<<< Updated upstream
     window, renderer, factory = create_window()
     turret = load_sprite("tank top.png", factory)
     tank = load_sprite("tank bot.png", factory)
     background = factory.from_color(GREEN, size=(300, 175))
     background.angle = 0
+=======
+    #window, renderer, factory = create_window()
+    #turret = load_sprite("tank top.png", factory)
+    #tank = load_sprite("tank bot.png", factory)
+    #background = factory.from_color(GREEN, size=(320, 180))
+    #background.angle = 0
+>>>>>>> Stashed changes
 
     running = True
     while running:
@@ -67,6 +75,7 @@ def run():
             for data in decoded_server_data:
                 loaded_data = json.loads(data)
                 if (loaded_data["type"] == "role"):
+                    window, renderer, factory = create_window()
                     if (loaded_data["data"] == "GUNNER"):
                         gunner_main(renderer, factory, s)
                     if (loaded_data["data"] == "DRIVER"):
@@ -81,13 +90,13 @@ def run():
             if server_data == b"exit":
                 running = False
 
-        global yolo
-        yolo += 1
-        tank.y = int(50 * math.sin(yolo / 300)) + 80
-        turret.y = int(50 * math.sin(yolo / 300)) + 80
-        tank.angle = yolo / 10
-        turret.angle = math.sin(yolo/300)
-        render_sprites([background, tank, turret], renderer)
+        #global yolo
+        #yolo += 1
+        #tank.y = int(50 * math.sin(yolo / 300)) + 80
+        #turret.y = int(50 * math.sin(yolo / 300)) + 80
+        #tank.angle = yolo / 10
+        #turret.angle = math.sin(yolo/300)
+        #render_sprites([background, tank, turret], renderer)
 
     s.shutdown(socket.SHUT_WR)
     s.close()
