@@ -39,6 +39,7 @@ def driver_main(renderer, factory, s):
     print("I'm a driver!")
 
     background = load_sprite("driver_background.png", factory)
+    background.center = False
     tank_angle = 0
     gun_angle = 0
 
