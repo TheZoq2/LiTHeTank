@@ -28,7 +28,6 @@ def commander_main(renderer, factory, socket):
     #renderer.render([background])
     tank_angle = 0
 
-    # TODO add needle
     tank_top_sprite = ru.load_sprite("tank top.png", factory)
     tank_bottom_sprite = ru.load_sprite("tank bot.png", factory)
     enemy_sprite = ru.load_sprite("enemy1_body.png", factory)

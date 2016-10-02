@@ -17,6 +17,7 @@ def gunner_main(renderer, factory, s):
     gunner_wheel = load_sprite("gunner_wheel.png", factory)
     shoot_button_up = load_sprite("shoot_button_up.png", factory)
     shoot_button_down = load_sprite("shoot_button_down.png", factory)
+    score_sprite = render_text("score: 0", factory)
     compass_needle.x = 223
     compass_needle.y = 41
     compass_needle.center = False
@@ -32,9 +33,13 @@ def gunner_main(renderer, factory, s):
     shoot_button_down.x = 21
     shoot_button_down.y = 120
     shoot_button_down.center = False
+    score_sprite.x = 320 // 2 - score_sprite.size[0] // 2
+    score_sprite.y = 2
+    score_sprite.center = False
 
     gun_angle = 0
     tank_angle = 0
+    score = 0
     button_down = False
 
     running = True
@@ -115,6 +120,12 @@ def gunner_main(renderer, factory, s):
                     tank = loaded_data["tank"]
                     gun_angle = tank["gun_angle"] / math.pi * 180
                     tank_angle = tank["angle"] / math.pi * 180
+                    score = loaded_data["score"]
+
+                    score_sprite = render_text("score: " + str(score), factory)
+                    score_sprite.x = 320 // 2 - score_sprite.size[0] // 2
+                    score_sprite.y = 2
+                    score_sprite.center = False
 
 
             if not server_data:
@@ -127,7 +138,7 @@ def gunner_main(renderer, factory, s):
         compass_needle.angle = -gun_angle - 90
         compass_needle_medium.angle = -tank_angle - 90
         gunner_wheel.angle = gun_angle
-        render_sprites([background, compass_needle, compass_needle_medium, gunner_wheel], renderer)
+        render_sprites([background, compass_needle, compass_needle_medium, gunner_wheel, score_sprite], renderer)
 
         if (button_down):
             render_sprites([shoot_button_down], renderer)
