@@ -45,6 +45,7 @@ class SocketBuffer:
         while running:
             if self.buffer.find("{"):
                 index = self.buffer.find("{")
+                print(index)
                 bytes_to_read = int(self.buffer[0:index])
 
                 if len(self.buffer) > bytes_to_read + index:

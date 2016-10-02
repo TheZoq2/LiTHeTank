@@ -71,6 +71,7 @@ class Client():
     def __init__(self, socket):
         self.socket = socket
         self.role = None
+        self.has_requested_data = False
 
     def set_role(self, role):
         self.role = role
@@ -100,6 +101,13 @@ def update_client(client, level):
                     0
                 )
 
+    for s in ready_to_write:
+        if client.has_requested_data == True:
+            client.has_requested_data = False
+            print("sending update")
+            send_msg_to_socket(s, create_socket_msg("update", level.to_json()))
+
+
     for s in ready_to_read:
         data = s.recv(10000).decode('utf-8')
         if not data:
@@ -113,7 +121,8 @@ def update_client(client, level):
                 (type, data) = decode_socket_json_msg(msg)
 
                 if type == "update":
-                    send_msg_to_socket(client.socket, create_socket_msg("update", level.to_json()))
+                    #send_msg_to_socket(client.socket, create_socket_msg("update", level.to_json()))
+                    client.has_requested_data =  True
                 if type == "turn_state":
                     level.tank.set_turn_direction(data["direction"])
                 if type == "track_state":
