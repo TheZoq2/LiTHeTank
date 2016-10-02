@@ -78,22 +78,33 @@ class Level():
                                   total_angle))
     
     def _handle_bullet_collisions(self):
+        bullets_to_remove = []
         for bullet in self.bullets:
             if bullet.position.is_within_bounds(self.tank.position, TANK_SIZE):
                 self.tank.health -= bullet.damage
+                bullets_to_remove.append(bullet)
+                print("TANK HIT")
+                continue
             for enemy in self.enemies:
                 if bullet.position.is_within_bounds(enemy.position, enemy.size):
                     enemy.health -= bullet.damage
+                    self.bullets.remove(bullet)
+                    bullets_to_remove.append(bullet)
+                    print("ENEMY HIT")
+        self.bullets = [bullet for bullet in self.bullets if bullet not in bullets_to_remove]
 
     def _update_bullet_positions(self, delta_time):
+        bullets_to_remove = []
         for bullet in self.bullets:
             bullet.position += bullet.velocity * delta_time
+            if not bullet.position.is_within_bounds(self.tank.position, 100):
+                bullets_to_remove.append(bullet)
+        self.bullets = [bullet for bullet in self.bullets if bullet not in bullets_to_remove]
 
     def _update_enemy_positions(self, delta_time):
         for enemy in self.enemies:
             enemy.angle = enemy.position.relative_angle_to(self.tank.position)
-            enemy.position += vec2_from_direction(enemy.angle, 
-                                                  random.randint(-20, 20) * delta_time)
+            enemy.position += vec2_from_direction(enemy.angle, 100 * delta_time)
     
     def _remove_dead_enemies(self):
         self.enemies = [e for e in self.enemies if not e.is_dead()]
@@ -112,8 +123,10 @@ class Level():
     
     def _spawn_enemies(self, delta_time):
         if random.randint(0, int(SPAWN_FREQUENCY / delta_time)) == 0:
-            randx = self.tank.position.x + random.randint(-MAXIMUM_SPAWN_DISTANCE, MAXIMUM_SPAWN_DISTANCE)
-            randy = self.tank.position.y + random.randint(-MAXIMUM_SPAWN_DISTANCE, MAXIMUM_SPAWN_DISTANCE)
+            randx = self.tank.position.x + \
+                    random.randint(-MAXIMUM_SPAWN_DISTANCE, MAXIMUM_SPAWN_DISTANCE)
+            randy = self.tank.position.y + \
+                    random.randint(-MAXIMUM_SPAWN_DISTANCE, MAXIMUM_SPAWN_DISTANCE)
             self.enemies.append(Enemy(Vec2(randx, randy)))
         
 
