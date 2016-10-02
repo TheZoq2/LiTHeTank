@@ -35,12 +35,15 @@ def create_window():
     spriterenderer = factory.create_sprite_render_system(window)
     return window, spriterenderer, factory
 
-yolo = 0
 def run():
+    server_url =  "localhost"
+    if len(sys.argv) == 2:
+        server_url = sys.argv[1]
+
     # create an INET, STREAMing socket
     s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     # now connect to the web server on port 80 - the normal http port
-    s.connect(("localhost", 2000))
+    s.connect((server_url, 2000))
     s.setblocking(False)
 
     window, renderer, factory = create_window()
