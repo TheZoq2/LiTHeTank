@@ -1,4 +1,5 @@
 import json
+import math
 from render_util import *
 from select import select
 from socket_util import *
@@ -39,15 +40,16 @@ def driver_main(renderer, factory, s):
 
     background = load_sprite("driver_background.png", factory)
     tank_angle = 0
+    gun_angle = 0
 
     # TODO add needle
     compass_needle = load_sprite("compass_needle.png", factory)
     compass_needle.x = 150
     compass_needle.y = 37
 
-    # small_needle = load_sprite("compass_needle_small.png", factory)
-    # small_needle.x = 227
-    # small_needle.y = 137
+    compass_needle_small = load_sprite("compass_needle_small.png", factory)
+    compass_needle_small.x = 225
+    compass_needle_small.y = 135
 
     levers = {}
     levers["up"] = load_sprite("lever_up.png", factory)
@@ -92,6 +94,10 @@ def driver_main(renderer, factory, s):
         if keys_have_changed:
             send_keys(ready_to_write[0], keys)
 
+
+        for ready in ready_to_write:
+            send_msg_to_socket(ready, create_socket_msg("update", ""))
+
         for ready in ready_to_read:
 
             server_data = ready.recv(10240).decode("utf-8")
@@ -102,10 +108,11 @@ def driver_main(renderer, factory, s):
 
 
             for data in decoded_server_data:
-                loaded_data = json.loads(data)
-                if (loaded_data["type"] == "update"):
-                    tank_angle = loaded_data["data"]["tank"]["angle"]
-                    break
+                type, loaded_data = decode_socket_json_msg(data)
+                if (type == "update"):
+                    tank_angle = loaded_data["tank"]["angle"] / math.pi * 180
+                    gun_angle = loaded_data["tank"]["gun_angle"] / math.pi * 180
+                    print(tank_angle)
 
             if not server_data:
                 print("Server disconnected")
@@ -115,8 +122,10 @@ def driver_main(renderer, factory, s):
                 running = False
 
 
-        compass_needle.angle = -tank_angle
-        render_sprites([background, compass_needle], renderer)
+        compass_needle.angle = -tank_angle - 90
+        compass_needle_small.angle = -gun_angle - 90
+
+        render_sprites([background, compass_needle, compass_needle_small], renderer)
 
         render_lever(LEVER_1_X, levers, lever_dir(keys["u1"], keys["d1"]), renderer)
         render_lever(LEVER_2_X, levers, lever_dir(keys["u2"], keys["d2"]), renderer)

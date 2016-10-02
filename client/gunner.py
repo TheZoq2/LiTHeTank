@@ -75,7 +75,6 @@ def gunner_main(renderer, factory, s):
 
             #decoded_server_data = decode_socket_data(server_data)
             decoded_server_data = socket_buffer.get_messages()
-            print("hype")
             for data in decoded_server_data:
                 (type, loaded_data) = decode_socket_json_msg(data)
                 if type == "update":
