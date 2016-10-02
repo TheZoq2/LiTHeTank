@@ -10,7 +10,7 @@ FIRE_RIGHT = 1
 
 DEFAULT_ENEMY_SIZE = 5
 DEFAULT_BULLET_DAMAGE = 10
-DEFAULT_BULLET_SPEED = 2
+DEFAULT_BULLET_SPEED = 150
 DEFAULT_ENEMY_HEALTH = 20
 SPAWN_FREQUENCY = 1
 TANK_SIZE = 16
@@ -122,11 +122,12 @@ class Level():
             enemy.position + vec2_from_direction(enemy.angle, enemy.size + 3), enemy.angle))
     
     def _spawn_enemies(self, delta_time):
-        if random.randint(0, int(SPAWN_FREQUENCY / delta_time)) == 0:
-            randx = self.tank.position.x + \
-                    random.randint(-MAXIMUM_SPAWN_DISTANCE, MAXIMUM_SPAWN_DISTANCE)
-            randy = self.tank.position.y + \
-                    random.randint(-MAXIMUM_SPAWN_DISTANCE, MAXIMUM_SPAWN_DISTANCE)
-            self.enemies.append(Enemy(Vec2(randx, randy)))
+        if len(self.enemies) < 5:
+            if random.randint(0, int(SPAWN_FREQUENCY / delta_time)) == 0:
+                randx = self.tank.position.x + \
+                        random.randint(-MAXIMUM_SPAWN_DISTANCE, MAXIMUM_SPAWN_DISTANCE)
+                randy = self.tank.position.y + \
+                        random.randint(-MAXIMUM_SPAWN_DISTANCE, MAXIMUM_SPAWN_DISTANCE)
+                self.enemies.append(Enemy(Vec2(randx, randy)))
         
 
