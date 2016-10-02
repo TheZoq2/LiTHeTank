@@ -39,7 +39,7 @@ class Vec2:
         return abs(self - center_point) <= size
 
     def angle(self):
-        return math.atan2(self.x, self.y)
+        return math.atan2(self.y, self.x)
 
     def relative_angle_to(self, other):
         return (self - other).angle()
