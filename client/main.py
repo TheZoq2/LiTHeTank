@@ -25,7 +25,7 @@ def request_data_from_server(socket):
 def create_window():
     sdl2.ext.init()
     window_size = (1280, 720)
-    window = sdl2.ext.Window("LiTHe Spank", size=window_size)
+    window = sdl2.ext.Window("LiTHe Tank", size=window_size)
     renderer = sdl2.ext.Renderer(window)
     renderer.scale = (4, 4)
     window.show()
