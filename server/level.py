@@ -200,6 +200,6 @@ class Level():
         if len(self.enemies) < 5:
             if random.randint(0, int(SPAWN_FREQUENCY / delta_time)) == 0:
                 angle = (random.randint(0, 1000) / 1000) * math.pi * 2
-                self.enemies.append(Enemy(self.tank.position + vec2_from_direction(angle, 100)))
+                self.enemies.append(Enemy(self.tank.position + vec2_from_direction(angle, 300)))
 
 

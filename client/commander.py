@@ -31,6 +31,7 @@ def commander_main(renderer, factory, socket):
     bullet_sprite = ru.load_sprite("bullet_normal.png", factory)
     bullet_sprite.scale = (0.1, 0.1)
     background = ru.create_rect(GREEN, (320, 180), factory)
+    background.center = False
 
     running = True
 
