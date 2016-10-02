@@ -20,6 +20,8 @@ def driver_main(renderer, factory, s):
     key_map = {sdl2.SDLK_w: "u1", sdl2.SDLK_s: "d1", sdl2.SDLK_i: "u2", sdl2.SDLK_k: "d2"}
     keys = {"u1": False, "d1": False, "u2": False, "d2": False}
 
+    socket_buffer = SocketBuffer()
+
     while running:
 
         keys_have_changed = False
@@ -53,8 +55,10 @@ def driver_main(renderer, factory, s):
         for ready in ready_to_read:
 
             server_data = ready.recv(10240).decode("utf-8")
+            socket_buffer.push_string(server_data)
 
-            decoded_server_data = decode_socket_data(server_data)
+            #decoded_server_data = decode_socket_data(server_data)
+            decoded_server_data = socket_buffer.get_messages()
 
 
             for data in decoded_server_data:
