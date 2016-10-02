@@ -1,5 +1,7 @@
 import vec
 import render_util as ru
+import random
+import math
 
 
 def load_smoke_particles(factory):
@@ -24,7 +26,7 @@ def load_explosion_particles(factory):
     ]
 
 def create_smoke_particle(pos, sprite_list):
-    return Particle(pos, vec.Vec2(0,10), 1.3, sprite_list)
+    return Particle(pos, vec.Vec2(0,-10), 0.3, sprite_list)
 
 def create_explosion_particle(pos, vel, sprite_list):
     return Particle(pos, vel, 0.1, sprite_list)
@@ -39,6 +41,7 @@ class Particle:
         self.current_index = 0
         self.this_index_time = 0
         self.is_alive = True
+        self.angle = random.randint(0, 1000) / 1000 * math.pi * 2
 
     def update(self, delta_t):
         self.pos += self.vel * delta_t
@@ -52,9 +55,10 @@ class Particle:
             if self.current_index >= len(self.sprite_list):
                 self.is_alive = False
 
-    def render(self, renderer):
+    def render(self, renderer, camera_pos):
         if self.is_alive:
             sprite = self.sprite_list[self.current_index]
             sprite.x = round(self.pos.x)
             sprite.y = round(self.pos.y)
-            ru.render_sprites([sprite], renderer)
+            sprite.angle = self.angle
+            ru.render_sprites([sprite], renderer, camera_pos)
