@@ -24,7 +24,7 @@ def request_data_from_server(socket):
 
 def create_window():
     sdl2.ext.init()
-    window_size = (1200, 700)
+    window_size = (1280, 720)
     window = sdl2.ext.Window("LiTHe Spank", size=window_size)
     renderer = sdl2.ext.Renderer(window)
     renderer.scale = (4, 4)
@@ -46,7 +46,7 @@ def run():
     window, renderer, factory = create_window()
     turret = load_sprite("tank top.png", factory)
     tank = load_sprite("tank bot.png", factory)
-    background = factory.from_color(GREEN, size=(300, 175))
+    background = factory.from_color(GREEN, size=(320, 180))
     background.angle = 0
 
     running = True
