@@ -16,6 +16,7 @@ GREEN = sdl2.ext.Color(150, 255, 120)
 HEALTH_GREEN = sdl2.ext.Color(0, 255, 0)
 
 HEALTH_BAR_OFFSET = 20
+TANK_HEALTH_OFFSET = 8
 
 RED = sdl2.ext.Color(255, 0, 0)
 HEALTH_BAR_HEIGHT = 2
@@ -47,6 +48,12 @@ def commander_main(renderer, factory, socket):
 
     needs_update = True
     last_update = time.time()
+
+    tank_health_red = ru.create_rect(RED, (HEALTH_BAR_WIDTH, HEALTH_BAR_HEIGHT), factory)
+    tank_health_green = ru.create_rect(HEALTH_GREEN,
+                                       (HEALTH_BAR_WIDTH, HEALTH_BAR_HEIGHT), factory)
+    tank_health_red.center = False
+    tank_health_green.center = False
 
     while running:
 
@@ -80,7 +87,7 @@ def commander_main(renderer, factory, socket):
                     enemies = loaded_data["enemies"]
                     bullets = loaded_data["bullets"]
                     update_tank_sprite(tank_top_sprite, tank_bottom_sprite, 
-                                       tank_data, renderer, factory)
+                                       tank_data, tank_health_red, tank_health_green)
 
             if not server_data:
                 print("Server disconnected")
@@ -89,7 +96,8 @@ def commander_main(renderer, factory, socket):
             if server_data == b"exit":
                 running = False
 
-        ru.render_sprites([background, tank_bottom_sprite, tank_top_sprite], renderer)
+        ru.render_sprites([background, tank_bottom_sprite,
+                           tank_top_sprite, tank_health_red, tank_health_green], renderer)
         _render_enemies(enemies, renderer, enemy_sprite, enemy_turret_sprite, factory)
         _render_bullets(bullets, renderer, bullet_sprite)
         sdl2.render.SDL_RenderPresent(renderer.sdlrenderer)
@@ -129,20 +137,16 @@ def _render_bullets(bullets, renderer, bullet_sprite):
         ru.render_sprites([bullet_sprite], renderer)
 
 
-def update_tank_sprite(tank_top_sprite, tank_bottom_sprite, tank_data, renderer, factory):
+def update_tank_sprite(tank_top_sprite, tank_bottom_sprite, 
+                       tank_data, health_red, health_green):
     x = round(tank_data["position"]["x"])
     y = round(tank_data["position"]["y"])
-    health_red = ru.create_rect(RED, (HEALTH_BAR_WIDTH, HEALTH_BAR_HEIGHT), factory)
-    health_green = ru.create_rect(HEALTH_GREEN, 
-                                  (int(HEALTH_BAR_WIDTH * 
-                                   (tank_data["health"] / tank_data["original_health"])),
-                                                HEALTH_BAR_HEIGHT), factory)
-    health_red.center = False
-    health_green.center = False
-    health_red.x = x
+    health_red.x = x - TANK_HEALTH_OFFSET
     health_red.y = y - HEALTH_BAR_OFFSET
-    health_green.x = x
+    health_green.x = x - TANK_HEALTH_OFFSET
     health_green.y = y - HEALTH_BAR_OFFSET
+    health_green.scale = ((tank_data["health"] / tank_data["original_health"]),
+                          1)
     
     tank_bottom_sprite.x = x
     tank_bottom_sprite.y = y
@@ -152,5 +156,4 @@ def update_tank_sprite(tank_top_sprite, tank_bottom_sprite, tank_data, renderer,
     tank_bottom_sprite.angle = tank_data["angle"] / math.pi * 180
     tank_top_sprite.angle = tank_data["gun_angle"] / math.pi * 180
 
-    ru.render_sprites([health_red, health_green], renderer)
 
