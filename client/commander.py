@@ -203,7 +203,7 @@ def _render_air_strike(airstrike, renderer, camera_position, box, plane, show_wa
         box.x = int(airstrike["target"]["x"])
         box.y = int(airstrike["target"]["y"])
 
-        box.angle = angle
+        box.angle = angle + 90
         ru.render_sprites([box], renderer, camera_position)
 
     plane.x = int(airstrike["position"]["x"])

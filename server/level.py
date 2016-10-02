@@ -165,6 +165,9 @@ class Level():
         for enemy in self.enemies:
             enemy.health -= self._get_damage(damage, radius,
                                              enemy.position.distance_to(explosion_position))
+        self.tank.health -= self._get_damage(damage, radius, 
+                                             self.tank.position.distance_to(
+                                                 explosion_position))
             
     def _get_damage(self, max_damage, radius, distance):
         if distance > radius:
