@@ -44,8 +44,6 @@ def run():
     s.setblocking(False)
 
     window, renderer, factory = create_window()
-    turret = load_sprite("tank top.png", factory)
-    tank = load_sprite("tank bot.png", factory)
     background = factory.from_color(GREEN, size=(320, 180))
     background.angle = 0
 
@@ -81,13 +79,7 @@ def run():
             if server_data == b"exit":
                 running = False
 
-        global yolo
-        yolo += 1
-        tank.y = int(50 * math.sin(yolo / 300)) + 80
-        turret.y = int(50 * math.sin(yolo / 300)) + 80
-        tank.angle = yolo / 10
-        turret.angle = math.sin(yolo/300)
-        render_sprites([background, tank, turret], renderer)
+        render_sprites([background], renderer)
 
     s.shutdown(socket.SHUT_WR)
     s.close()

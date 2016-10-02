@@ -27,9 +27,9 @@ def gunner_main(renderer, factory, s):
                 break
             if event.type == sdl2.SDL_KEYDOWN:
                 if event.key.keysym.sym == sdl2.SDLK_k:
-                    gun_angle += 1
+                    send_msg_to_socket(ready_to_write[0], create_socket_msg("rotate_gun_right", ""))
                 elif event.key.keysym.sym == sdl2.SDLK_j:
-                    gun_angle -= 1
+                    send_msg_to_socket(ready_to_write[0], create_socket_msg("rotate_gun_left", ""))
 
         events = sdl2.ext.get_events()
         for event in events:
@@ -39,18 +39,19 @@ def gunner_main(renderer, factory, s):
 
         ready_to_read, ready_to_write, in_error = select([s], [s], [], 0)
 
+        send_msg_to_socket(ready_to_write[0], create_socket_msg("update", ""))
+
         for ready in ready_to_read:
 
-            server_data = ready.recv(10240).decode("utf-8")
+            server_data = ready.recv(102400).decode("utf-8")
 
-            decoded_server_data = decode_server_data(server_data)
-
+            decoded_server_data = decode_socket_data(server_data)
 
             for data in decoded_server_data:
-                loaded_data = json.loads(data)
-                if (loaded_data["type"] == "update"):
-                    #tank_angle = loaded_data["data"]["tank"]["angle"]
-                    break
+                (type, loaded_data) = decode_socket_json_msg(data)
+                if type == "update":
+                    tank = loaded_data["tank"]
+                    gun_angle = tank["gun_angle"]
 
             if not server_data:
                 print("Server disconnected")
