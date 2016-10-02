@@ -46,17 +46,17 @@ def turn_angle_to_angle(angle, target_angle, speed, threshold):
 
 class AirStrike():
 
-    def __init__(self, target, tank_position):
-        self.target = target
-        pos, velocity = self._generate_start_position(target, tank_position)
+    def __init__(self, tank_position):
+        self.target = tank_position
+        pos, velocity = self._generate_start_position(tank_position)
         self.position = pos
         self.velocity = velocity
 
-    def _generate_start_position(self, target, tank_position):
+    def _generate_start_position(self, tank_position):
         start_position = tank_position + \
-                vec2_from_direction(random.randrange(0, 2 * math.pi), 
+                vec2_from_direction(random.randrange(0, 7), 
                                     AIR_STRIKE_STARTING_DISTANCE)
-        velocity = vec2_from_direction(target.relative_angle_to(tank_position),
+        velocity = vec2_from_direction(start_position.relative_angle_to(tank_position),
                                       AIR_STRIKE_SPEED)
         return start_position, velocity
 
@@ -110,6 +110,7 @@ class Level():
         self._handle_bullet_collisions()
         self._update_bullet_positions(delta_time)
         self._update_enemy_positions(delta_time)
+        self._update_air_strike_position(delta_time)
         self._fire_enemies(delta_time)
         self._remove_dead_enemies()
         self._spawn_enemies(delta_time)
@@ -118,9 +119,14 @@ class Level():
     def to_json(self):
         return json.dumps(self, default=lambda o: o.__dict__, sort_keys=True, indent=4)
 
+    def _update_air_strike_position(self, delta_time):
+        if self.air_strike is not None:
+            self.air_strike.position += self.air_strike.velocity
+
     def _spawn_airstrike(self, delta_time):
-        if not random.randint(0, int(AIR_STRIKE_FREQUENCY * delta_time)):
-            pass
+        if self.air_strike is None and \
+           not random.randint(0, int(AIR_STRIKE_FREQUENCY * delta_time)):
+            self.air_strike = AirStrike(self.tank.position)
 
     def _fire_tank(self, cannon):
         # TODO differentiate between left and right
