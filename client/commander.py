@@ -197,7 +197,7 @@ def commander_main(renderer, factory, socket):
 
 def _render_air_strike(airstrike, renderer, camera_position, box, plane, show_warning):
     vel = vec.Vec2(airstrike["velocity"]["x"], airstrike["velocity"]["y"])
-    angle = int(vel.angle())
+    angle = int(vec.radians_to_degrees(vel.angle()))
 
     if show_warning:
         box.x = int(airstrike["target"]["x"])
