@@ -16,7 +16,7 @@ DEFAULT_BULLET_DAMAGE = 10
 DEFAULT_BULLET_SPEED = 150
 DEFAULT_ENEMY_HEALTH = 20
 SPAWN_FREQUENCY = 1
-TANK_SIZE = 16
+TANK_SIZE = 14
 MAXIMUM_SPAWN_DISTANCE = 100
 ENEMY_SPEED = 20
 ENEMY_TURN_SPEED  = math.pi / 2
@@ -24,6 +24,14 @@ DESPAWN_RADIUS = 500
 AIR_STRIKE_STARTING_DISTANCE = 200
 AIR_STRIKE_SPEED = 150
 AIR_STRIKE_FREQUENCY = 10
+AIR_STRIKE_EXPLOSION_STRENGTH = 50
+AIR_STRIKE_EXPLOSION_RADUIS = 30
+AIR_STRIKE_BOMB_RESOLUTION = 4
+AIR_STRIKE_BOMB_DAMAGE = 40
+INTER_AIR_STRIKE_DISTANCE = 50
+
+# Where the bombs should be dropped
+AIR_STRIKES = [-1, 0, 1]
 
 # The default probability for the enemies. Higher numbers result in lower frequencies
 DEFAULT_FIRING_FREQUENCY = 3.5
@@ -51,6 +59,8 @@ class AirStrike():
         pos, velocity = self._generate_start_position(tank_position)
         self.position = pos
         self.velocity = velocity
+        # list of ints indicating how many multiples of air strike distance to drop each bomb
+        self.bombs = AIR_STRIKES
 
     def _generate_start_position(self, tank_position):
         start_position = tank_position + \
@@ -60,6 +70,18 @@ class AirStrike():
                                       AIR_STRIKE_SPEED)
         return start_position, velocity
 
+    def should_drop_bomb(self):
+        if not self.bombs:
+            return False
+        bomb = self.bombs[0]
+        position_vector = vec2_from_direction(self.velocity.angle(), 
+                                              bomb * INTER_AIR_STRIKE_DISTANCE)
+        return position_vector.is_within_bounds(self.position, AIR_STRIKE_BOMB_RESOLUTION)
+
+    def drop_bomb(self):
+        """Removes one of the bombs from the list of bombs"""
+        self.bombs = self.bombs[1:]
+        
 
 class Enemy():
 
@@ -125,6 +147,16 @@ class Level():
     def _update_air_strike_position(self, delta_time):
         if self.air_strike is not None:
             self.air_strike.position += self.air_strike.velocity
+            if self.air_strike.should_drop_bomb():
+                self.air_strike.drop_bomb()
+                self._add_explosion(self.air_strike.position, AIR_STRIKE_EXPLOSION_STRENGTH)
+
+    def _damage_players_explosion(self, radius):
+        for enemy in self.enemies:
+            pass
+            
+    def _get_damage(self):
+        pass
 
     def _spawn_airstrike(self, delta_time):
         if self.air_strike is None and \
@@ -147,7 +179,6 @@ class Level():
                     self.tank.gun_angle + (math.pi/2), TANK_SIZE/2) + \
                     vec2_from_direction(self.tank.gun_angle, TANK_SIZE + 3),
                                       self.tank.gun_angle))
-
 
     def _handle_bullet_collisions(self):
         bullets_to_remove = []

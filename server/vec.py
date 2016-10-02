@@ -36,7 +36,7 @@ class Vec2:
 
     def is_within_bounds(self, center_point, size):
         """Checks whether this vector is within size distance from center_point"""
-        return abs(self - center_point) <= size
+        return self.distance_to(center_point) <= size
 
     def angle(self):
         return math.atan2(self.y, self.x)
@@ -46,4 +46,7 @@ class Vec2:
 
     def to_tuple(self):
         return (self.x, self.y)
+
+    def distance_to(self, other):
+        return abs(self - other)
 
