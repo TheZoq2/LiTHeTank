@@ -57,7 +57,6 @@ def commander_main(renderer, factory, socket):
                 #print("Requesting update")
 
         for ready in ready_to_read:
-            print("Got data")
             server_data = ready.recv(4096).decode("utf-8")
             socket_buffer.push_string(server_data)
 
