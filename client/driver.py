@@ -15,6 +15,9 @@ def driver_main(spriterenderer, factory, s):
 
     running = True
 
+    key_map = {sdl2.SDLK_W: "u1", sdl2.SDLK_S: "d1", sdl2.SDLK_I: "u2", sdl2.SDLK_K: "d2"}
+    keys = {"u1": False, "d1": False, "u2": False, "d2": False}
+
     while running:
 
         events = sdl2.ext.get_events()
@@ -22,6 +25,16 @@ def driver_main(spriterenderer, factory, s):
             if event.type == sdl2.SDL_QUIT:
                 running = False
                 break
+
+            if event.type == sdl2.SDL_KEYDOWN:
+                keysym = event.key.keysym.sym
+                if keysym in key_map.keys():
+                    keys[key_map[keysym]] = True
+
+            if event.type == sdl2.SDL_KEYUP:
+                keysym = event.key.keysym.sym
+                if keysym in key_map.keys():
+                    keys[key_map[keysym]] = False
 
         ready_to_read, ready_to_write, in_error = select([s], [s], [], 0)
 
