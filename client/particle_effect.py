@@ -33,7 +33,8 @@ class Particle:
                 self.is_alive = False
 
     def render(self, renderer):
-        sprite = self.sprite_list[self.current_index]
-        sprite.x = round(self.pos.x)
-        sprite.y = round(self.pos.y)
-        ru.render_sprites([sprite], renderer)
+        if self.is_alive:
+            sprite = self.sprite_list[self.current_index]
+            sprite.x = round(self.pos.x)
+            sprite.y = round(self.pos.y)
+            ru.render_sprites([sprite], renderer)
