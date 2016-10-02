@@ -84,6 +84,7 @@ def run():
                 running = False
 
         render_sprites([background], renderer)
+        sdl2.render.SDL_RenderPresent(renderer.sdlrenderer)
 
     s.shutdown(socket.SHUT_WR)
     s.close()

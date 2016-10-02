@@ -117,6 +117,8 @@ def driver_main(renderer, factory, s):
         render_lever(LEVER_1_X, levers, lever_dir(keys["u1"], keys["d1"]), renderer)
         render_lever(LEVER_2_X, levers, lever_dir(keys["u2"], keys["d2"]), renderer)
 
+        sdl2.render.SDL_RenderPresent(renderer.sdlrenderer)
+
 def send_keys(socket, keys):
     left_amount = 0
     right_amount = 0

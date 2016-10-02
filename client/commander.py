@@ -70,6 +70,7 @@ def commander_main(renderer, factory, socket):
         _render_enemies(enemies, renderer, factory)
         _render_bullets(bullets, renderer, factory)
         ru.render_sprites([background, tank_bottom_sprite, tank_top_sprite], renderer)
+        sdl2.render.SDL_RenderPresent(renderer.sdlrenderer)
 
 
 def _render_enemies(enemies, renderer, factory):
