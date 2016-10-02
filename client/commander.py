@@ -17,7 +17,6 @@ def commander_main(renderer, factory, socket):
 
     # TODO add needle
     tank_top_sprite = ru.load_sprite("tank top.png", factory)
-    gun_angle = 0
 
     running = True
 
@@ -50,7 +49,7 @@ def commander_main(renderer, factory, socket):
                     tank = loaded_data["tank"]
                     tank_top_sprite.x = tank["position"]["x"]
                     tank_top_sprite.y = tank["position"]["y"]
-                    gun_angle = tank["gun_angle"]
+                    tank_top_sprite.angle = tank["gun_angle"]
 
                    #print("Got update msg with x {} y {}".format(tank["position"]["x"],tank["position"]["y"]))
 
@@ -61,7 +60,6 @@ def commander_main(renderer, factory, socket):
             if server_data == b"exit":
                 running = False
 
-        tank_top_sprite.angle = gun_angle
         ru.render_sprites([tank_top_sprite], renderer)
 
 
