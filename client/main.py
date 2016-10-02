@@ -33,6 +33,7 @@ def create_window():
     factory = sdl2.ext.SpriteFactory(renderer=renderer)
 
     spriterenderer = factory.create_sprite_render_system(window)
+    spriterenderer.blendmode = sdl2.SDL_BLENDMODE_BLEND
     return window, spriterenderer, factory
 
 def run():

@@ -14,6 +14,7 @@ import particle_effect as particle
 
 WHITE = sdl2.ext.Color(255, 255, 255)
 GREEN = sdl2.ext.Color(150, 255, 120)
+BLUE = sdl2.ext.Color(50, 50, 255, 100)
 
 HEALTH_GREEN = sdl2.ext.Color(0, 255, 0)
 
@@ -44,6 +45,7 @@ def commander_main(renderer, factory, socket):
     enemy_turret_sprite  = ru.load_sprite("enemy1_turret.png", factory)
     bullet_sprite = ru.load_sprite("bullet_normal.png", factory)
     bullet_sprite.scale = (0.1, 0.1)
+    box_sprite = ru.load_sprite("air_strike.png", factory)
 
     tiles = [ru.load_sprite("tile" + str(i + 1) + ".png", factory) for i in range(4)]
 
@@ -53,6 +55,7 @@ def commander_main(renderer, factory, socket):
 
     enemies = []
     bullets = []
+    airstrike = None
 
     needs_update = True
     last_update = time.time()
@@ -105,7 +108,8 @@ def commander_main(renderer, factory, socket):
                     tank_data = loaded_data["tank"]
                     enemies = loaded_data["enemies"]
                     bullets = loaded_data["bullets"]
-                    update_tank_sprite(tank_top_sprite, tank_bottom_sprite, 
+                    airstrike = loaded_data["air_strike"]
+                    update_tank_sprite(tank_top_sprite, tank_bottom_sprite,
                                        tank_data, tank_health_red, tank_health_green)
 
             if not server_data:
@@ -132,7 +136,7 @@ def commander_main(renderer, factory, socket):
                 tile_y = camera_position.y // tile_size + y
                 render_tile(tile_x, tile_y, tiles, renderer, camera_position)
 
-        ru.render_sprites([tank_bottom_sprite, tank_top_sprite, 
+        ru.render_sprites([tank_bottom_sprite, tank_top_sprite,
                            tank_health_red, tank_health_green], renderer, camera_position)
         _render_enemies(enemies, renderer, enemy_sprite,
                         enemy_turret_sprite, camera_position, factory)
@@ -144,8 +148,19 @@ def commander_main(renderer, factory, socket):
 
         particles = [a for a in particles if a.is_alive]
 
+        if airstrike:
+            _render_air_strike(airstrike, renderer, camera_position, box_sprite)
 
         sdl2.render.SDL_RenderPresent(renderer.sdlrenderer)
+
+
+def _render_air_strike(airstrike, renderer, camera_position, box):
+    box.x = int(airstrike["target"]["x"])
+    box.y = int(airstrike["target"]["y"])
+
+    vel = vec.Vec2(airstrike["velocity"]["x"], airstrike["velocity"]["y"])
+    box.angle = int(vel.angle())
+    ru.render_sprites([box], renderer, camera_position)
 
 
 def _render_enemies(enemies, renderer, enemy_sprite, enemy_turret_sprite, cam_pos, factory):
@@ -183,7 +198,7 @@ def _render_bullets(bullets, renderer, bullet_sprite, cam_pos):
         ru.render_sprites([bullet_sprite], renderer, cam_pos = cam_pos)
 
 
-def update_tank_sprite(tank_top_sprite, tank_bottom_sprite, 
+def update_tank_sprite(tank_top_sprite, tank_bottom_sprite,
                        tank_data, health_red, health_green):
     x = round(tank_data["position"]["x"])
     y = round(tank_data["position"]["y"])
@@ -193,7 +208,7 @@ def update_tank_sprite(tank_top_sprite, tank_bottom_sprite,
     health_green.y = y - HEALTH_BAR_OFFSET
     health_green.scale = ((tank_data["health"] / tank_data["original_health"]),
                           1)
-    
+
     tank_bottom_sprite.x = x
     tank_bottom_sprite.y = y
     tank_top_sprite.x = x
