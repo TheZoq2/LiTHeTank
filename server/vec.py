@@ -44,3 +44,6 @@ class Vec2:
     def relative_angle_to(self, other):
         return (self - other).angle()
 
+    def to_tuple(self):
+        return (self.x, self.y)
+

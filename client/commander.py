@@ -8,9 +8,13 @@ from select import select
 from socket_util import *
 import pdb
 import math
+import time
 
 WHITE = sdl2.ext.Color(255, 255, 255)
 GREEN = sdl2.ext.Color(150, 255, 120)
+RED = sdl2.ext.Color(255, 0, 0)
+HEALTH_BAR_HEIGHT = 4
+HEALTH_BAR_WIDTH = 16
 
 def commander_main(renderer, factory, socket):
     print("I'm a commander!")
@@ -27,6 +31,7 @@ def commander_main(renderer, factory, socket):
     bullet_sprite = ru.load_sprite("bullet_normal.png", factory)
     bullet_sprite.scale = (0.1, 0.1)
     background = ru.create_rect(GREEN, (320, 180), factory)
+    background.center = False
 
     running = True
 
@@ -34,6 +39,9 @@ def commander_main(renderer, factory, socket):
 
     enemies = []
     bullets = []
+
+    needs_update = True
+    last_update = time.time()
 
     while running:
 
@@ -45,8 +53,12 @@ def commander_main(renderer, factory, socket):
 
         ready_to_read, ready_to_write, in_error = select([socket], [socket], [], 0)
 
-        for ready in ready_to_write:
-            send_msg_to_socket(ready, create_socket_msg("update", ""))
+        if needs_update == True or (time.time() - last_update) > 0.1:
+            for ready in ready_to_write:
+                send_msg_to_socket(ready, create_socket_msg("update", ""))
+                needs_update = False
+                last_update = time.time()
+                #print("Requesting update")
 
         for ready in ready_to_read:
             server_data = ready.recv(4096).decode("utf-8")
@@ -58,6 +70,7 @@ def commander_main(renderer, factory, socket):
             for data in decoded_server_data:
                 (type, loaded_data) = decode_socket_json_msg(data)
                 if type == "update":
+                    needs_update = True
                     tank_data = loaded_data["tank"]
                     enemies = loaded_data["enemies"]
                     bullets = loaded_data["bullets"]
@@ -78,6 +91,12 @@ def commander_main(renderer, factory, socket):
 
 def _render_enemies(enemies, renderer, enemy_sprite, enemy_turret_sprite):
     for enemy in enemies:
+        health_red = ru.create_rect(RED, (HEALTH_BAR_HEIGHT, HEALTH_BAR_WIDTH))
+        health_green = ru.create_rect(GREEN, (HEALTH_BAR_HEIGHT, 
+                               HEALTH_BAR_WIDTH * enemy["health"]))
+        health_red.center = False
+        health_green.center = False
+        
         x = int(enemy["position"]["x"])
         y = int(enemy["position"]["y"])
         enemy_sprite.x = x

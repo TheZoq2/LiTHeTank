@@ -11,6 +11,7 @@ def gunner_main(renderer, factory, s):
     print("I'm a gunner!")
 
     background = load_sprite("gunner_background.png", factory)
+    background.center = False
     compass_needle = load_sprite("compass_needle.png", factory)
     compass_needle_medium = load_sprite("compass_needle_medium.png", factory)
     gunner_wheel = load_sprite("gunner_wheel.png", factory)
@@ -18,14 +19,19 @@ def gunner_main(renderer, factory, s):
     shoot_button_down = load_sprite("shoot_button_down.png", factory)
     compass_needle.x = 223
     compass_needle.y = 41
+    compass_needle.center = False
     compass_needle_medium.x = 130
     compass_needle_medium.y = 116
+    compass_needle_medium.center = False
     gunner_wheel.x = 50
     gunner_wheel.y = 22
+    gunner_wheel.center = False
     shoot_button_up.x = 21
     shoot_button_up.y = 120
+    shoot_button_up.center = False
     shoot_button_down.x = 21
     shoot_button_down.y = 120
+    shoot_button_down.center = False
 
     gun_angle = 0
     tank_angle = 0
@@ -35,10 +41,9 @@ def gunner_main(renderer, factory, s):
 
     socket_buffer = SocketBuffer()
 
+    key_is_pressed = False
+    shoot_pressed = False
     while running:
-
-        key_is_pressed = False
-        shoot_pressed = False
         new_turn_dir = 0
         barrel = ""
 
@@ -82,16 +87,19 @@ def gunner_main(renderer, factory, s):
         ready_to_read, ready_to_write, in_error = select([s], [s], [], 0)
 
 
-        if key_is_pressed:
-            msg = create_socket_msg("turn_state", json.dumps({"direction": new_turn_dir}))
-            send_msg_to_socket(ready_to_write[0], msg)
-
-        if shoot_pressed:
-            msg = create_socket_msg("shoot", json.dumps({"barrel": barrel}))
-            send_msg_to_socket(ready_to_write[0], msg)
 
         for ready in ready_to_write:
             send_msg_to_socket(ready, create_socket_msg("update", ""))
+
+            if key_is_pressed:
+                msg = create_socket_msg("turn_state", json.dumps({"direction": new_turn_dir}))
+                send_msg_to_socket(ready_to_write[0], msg)
+                key_is_pressed = False
+
+            if shoot_pressed:
+                msg = create_socket_msg("shoot", json.dumps({"barrel": barrel}))
+                send_msg_to_socket(ready_to_write[0], msg)
+                shoot_is_pressed = False
 
         for ready in ready_to_read:
             server_data = ready.recv(102400).decode("utf-8")

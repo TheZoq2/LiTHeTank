@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 
+import sys
 import random
 import socket
 from vec import *
@@ -43,6 +44,9 @@ class Tank:
 
         self.angle += add_angle * delta_t
         self.position += vec2_from_direction(self.angle, add_speed * delta_t)
+
+        if self.health < 0:
+            sys.exit(0)
 
     def set_track_state(self, left, right):
         self.left_track = left

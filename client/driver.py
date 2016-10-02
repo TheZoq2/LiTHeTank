@@ -39,6 +39,7 @@ def driver_main(renderer, factory, s):
     print("I'm a driver!")
 
     background = load_sprite("driver_background.png", factory)
+    background.center = False
     tank_angle = 0
     gun_angle = 0
 
@@ -46,15 +47,20 @@ def driver_main(renderer, factory, s):
     compass_needle = load_sprite("compass_needle.png", factory)
     compass_needle.x = 150
     compass_needle.y = 37
+    compass_needle.center = False
 
     compass_needle_small = load_sprite("compass_needle_small.png", factory)
     compass_needle_small.x = 225
     compass_needle_small.y = 135
+    compass_needle_small.center = False
 
     levers = {}
     levers["up"] = load_sprite("lever_up.png", factory)
     levers["down"] = load_sprite("lever_down.png", factory)
     levers["neutral"] = load_sprite("lever_neutral.png", factory)
+
+    for lever in levers:
+        levers[lever].center = True
 
     running = True
 
