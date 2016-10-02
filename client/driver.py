@@ -135,13 +135,13 @@ def driver_main(renderer, factory, s):
 def send_keys(socket, keys):
     left_amount = 0
     right_amount = 0
-    if keys["u1"]:
-        left_amount = 1
-    if keys["d1"]:
-        left_amount = -1
     if keys["u2"]:
-        right_amount = 1
+        left_amount = 1
     if keys["d2"]:
+        left_amount = -1
+    if keys["u1"]:
+        right_amount = 1
+    if keys["d1"]:
         right_amount = -1
 
     #Send a message about the current track state to the server
