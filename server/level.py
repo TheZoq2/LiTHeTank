@@ -16,7 +16,7 @@ SPAWN_FREQUENCY = 10
 TANK_SIZE = 16
 
 # The default probability for the enemies. Higher numbers result in lower frequencies
-DEFAULT_FIRING_FREQUENCY = 0
+DEFAULT_FIRING_FREQUENCY = 10
 
 
 class Enemy():
@@ -71,8 +71,10 @@ class Level():
 
     def _fire_tank(self, cannon):
         # TODO differentiate between left and right
-        self.bullets.append(Bullet(self.tank.position, 
-                                  self.tank.gun_angle + self.tank.angle))
+        total_angle = self.tank.gun_angle + self.tank.angle
+        self.bullets.append(Bullet(
+            self.tank.position + vec2_from_direction(total_angle, TANK_SIZE + 3), 
+                                  total_angle))
     
     def _handle_bullet_collisions(self):
         for bullet in self.bullets:
@@ -105,8 +107,8 @@ class Level():
                 
     #TODO: FUCK DIN KOD MALCOLM. KLIENTERNA VILL INTE HA 100KB data
     def _enemy_fire(self, enemy):
-        pass
-        #self.bullets.append(Bullet(enemy.position, enemy.angle))
+        self.bullets.append(Bullet(
+            enemy.position + vec2_from_direction(enemy.angle, enemy.size + 3), enemy.angle))
     
     def _spawn_enemies(self, delta_time):
         if random.randint(0, int(SPAWN_FREQUENCY / delta_time)) == 0:
