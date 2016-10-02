@@ -1,4 +1,6 @@
 import sdl2.ext
+import time
+import time
 from vec import Vec2, vec2_from_direction
 import math
 import random
@@ -18,9 +20,10 @@ TANK_SIZE = 16
 MAXIMUM_SPAWN_DISTANCE = 100
 ENEMY_SPEED = 20
 ENEMY_TURN_SPEED  = math.pi / 2
+DESPAWN_RADIUS = 500
 
 # The default probability for the enemies. Higher numbers result in lower frequencies
-DEFAULT_FIRING_FREQUENCY = 10
+DEFAULT_FIRING_FREQUENCY = 3.5
 
 HUNTING = 0,
 SHOOTING = 1,
@@ -40,6 +43,7 @@ class Enemy():
         self.firing_frequency = firing_frequency
         self.state = HUNTING
         self.turret_angle = 0
+        self.last_shot = time.time()
 
     def is_dead(self):
         return self.health <= 0
@@ -55,7 +59,7 @@ class Bullet():
 
 
 def turn_angle_to_angle(angle, target_angle, speed, threshold):
-    angle_diff = abs(target_angle - angle)
+    angle_diff = target_angle - angle
     angle_diff = ((angle_diff + math.pi) % (math.pi * 2)) - math.pi
     if abs(angle_diff) > threshold:
         if angle_diff < 0:
@@ -115,7 +119,7 @@ class Level():
         bullets_to_remove = []
         for bullet in self.bullets:
             bullet.position += bullet.velocity * delta_time
-            if not bullet.position.is_within_bounds(self.tank.position, 100):
+            if not bullet.position.is_within_bounds(self.tank.position, DESPAWN_RADIUS):
                 bullets_to_remove.append(bullet)
         self.bullets = [bullet for bullet in self.bullets if bullet not in bullets_to_remove]
 
@@ -156,25 +160,22 @@ class Level():
 
     def _fire_enemies(self, delta_time):
         for enemy in self.enemies:
-            should_fire = not random.randint(0, int(enemy.firing_frequency * (1 / delta_time)))
+            #should_fire = not random.randint(0, int(enemy.firing_frequency * (1 / delta_time)))
+            should_fire = (time.time() - enemy.last_shot) > enemy.firing_frequency
 
             # if the random number was 0, fire
             if should_fire:
                 self._enemy_fire(enemy)
+                enemy.last_shot = time.time()
 
     def _enemy_fire(self, enemy):
         self.bullets.append(Bullet(
-            enemy.position + vec2_from_direction(enemy.angle, enemy.size + 3), enemy.angle))
+            enemy.position + vec2_from_direction(enemy.turret_angle, enemy.size + 3), enemy.turret_angle))
 
     def _spawn_enemies(self, delta_time):
         if len(self.enemies) < 5:
             if random.randint(0, int(SPAWN_FREQUENCY / delta_time)) == 0:
                 angle = (random.randint(0, 1000) / 1000) * math.pi * 2
-                self.enemies.append(Enemy(self.tank.position + vec2_from_direction(angle, 200)))
-            #    randx = self.tank.position.x + \
-            #            random.randint(-MAXIMUM_SPAWN_DISTANCE, MAXIMUM_SPAWN_DISTANCE)
-            #    randy = self.tank.position.y + \
-            #            random.randint(-MAXIMUM_SPAWN_DISTANCE, MAXIMUM_SPAWN_DISTANCE)
-            #    self.enemies.append(Enemy(Vec2(randx, randy)))
+                self.enemies.append(Enemy(self.tank.position + vec2_from_direction(angle, 100)))
 
 

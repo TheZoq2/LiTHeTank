@@ -8,6 +8,7 @@ from select import select
 from socket_util import *
 import pdb
 import math
+import time
 
 WHITE = sdl2.ext.Color(255, 255, 255)
 GREEN = sdl2.ext.Color(150, 255, 120)
@@ -35,6 +36,9 @@ def commander_main(renderer, factory, socket):
     enemies = []
     bullets = []
 
+    needs_update = True
+    last_update = time.time()
+
     while running:
 
         events = sdl2.ext.get_events()
@@ -45,10 +49,15 @@ def commander_main(renderer, factory, socket):
 
         ready_to_read, ready_to_write, in_error = select([socket], [socket], [], 0)
 
-        for ready in ready_to_write:
-            send_msg_to_socket(ready, create_socket_msg("update", ""))
+        if needs_update == True or (time.time() - last_update) > 0.1:
+            for ready in ready_to_write:
+                send_msg_to_socket(ready, create_socket_msg("update", ""))
+                needs_update = False
+                last_update = time.time()
+                #print("Requesting update")
 
         for ready in ready_to_read:
+            print("Got data")
             server_data = ready.recv(4096).decode("utf-8")
             socket_buffer.push_string(server_data)
 
@@ -58,6 +67,7 @@ def commander_main(renderer, factory, socket):
             for data in decoded_server_data:
                 (type, loaded_data) = decode_socket_json_msg(data)
                 if type == "update":
+                    needs_update = True
                     tank_data = loaded_data["tank"]
                     enemies = loaded_data["enemies"]
                     bullets = loaded_data["bullets"]
