@@ -95,8 +95,8 @@ class Level():
     def _update_enemy_positions(self, delta_time):
         for enemy in self.enemies:
             enemy.angle = enemy.position.relative_angle_to(self.tank.position)
-            enemy.position += vec2_from_direction(enemy.angle, 
-                                                  random.randint(-20, 20) * delta_time)
+            enemy.position += vec2_from_direction(enemy.angle, 100 * delta_time)
+                                                  #random.randint(-100, 100))
     
     def _remove_dead_enemies(self):
         self.enemies = [e for e in self.enemies if not e.is_dead()]
