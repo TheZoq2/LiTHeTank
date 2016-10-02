@@ -28,7 +28,10 @@ HEALTH_BAR_WIDTH = 16
 SCROLL_BORDER = 50
 
 def render_tile(x, y, tiles, renderer, cam_pos):
-    index = (x + y) % len(tiles)
+    rand_vec = (12.9898, 78.233)
+    rand_num = 43758.5453
+    random = (math.sin(x * rand_vec[0] + y * rand_vec[1])*rand_num)%1
+    index = int(len(tiles) * random)
     tiles[index].x = x * 64
     tiles[index].y = y * 64
     ru.render_sprites([tiles[index]], renderer, cam_pos = cam_pos)
