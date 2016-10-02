@@ -18,3 +18,11 @@ def decode_socket_data(server_data):
 def create_socket_msg(type, payload):
     return json.dumps({"type": type, "data": payload},)
 
+
+def decode_socket_json_msg(msg):
+    loaded_data = json.loads(msg)
+
+    type = loaded_data["type"]
+    data = json.loads(loaded_data["data"])
+
+    return (type, data)
