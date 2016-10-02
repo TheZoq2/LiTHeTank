@@ -44,6 +44,12 @@ def commander_main(renderer, factory, socket):
     bullet_sprite = ru.load_sprite("bullet_normal.png", factory)
     bullet_sprite.scale = (0.1, 0.1)
 
+    score_sprite = ru.render_text("score: 0", factory)
+    score_sprite.x = 320 // 2 - score_sprite.size[0] // 2
+    score_sprite.y = 2
+    score_sprite.center = False
+    score = 0
+
     tiles = [ru.load_sprite("tile" + str(i + 1) + ".png", factory) for i in range(4)]
 
     running = True
@@ -107,6 +113,12 @@ def commander_main(renderer, factory, socket):
                     update_tank_sprite(tank_top_sprite, tank_bottom_sprite, 
                                        tank_data, tank_health_red, tank_health_green)
 
+                    score = loaded_data["score"]
+                    score_sprite = ru.render_text("score: " + str(score), factory)
+                    score_sprite.x = 320 // 2 - score_sprite.size[0] // 2
+                    score_sprite.y = 2
+                    score_sprite.center = False
+
             if not server_data:
                 print("Server disconnected")
                 running = False
@@ -133,6 +145,7 @@ def commander_main(renderer, factory, socket):
 
         ru.render_sprites([tank_bottom_sprite, tank_top_sprite, 
                            tank_health_red, tank_health_green], renderer, camera_position)
+        ru.render_sprites([score_sprite], renderer)
         _render_enemies(enemies, renderer, enemy_sprite,
                         enemy_turret_sprite, camera_position, factory)
         _render_bullets(bullets, renderer, bullet_sprite, camera_position)
