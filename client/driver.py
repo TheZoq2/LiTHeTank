@@ -54,6 +54,12 @@ def driver_main(renderer, factory, s):
     compass_needle_small.y = 135
     compass_needle_small.center = False
 
+    score_sprite = render_text("score: 0", factory)
+    score_sprite.x = 320 // 2 - score_sprite.size[0] // 2
+    score_sprite.y = 2
+    score_sprite.center = False
+    score = 0
+
     levers = {}
     levers["up"] = load_sprite("lever_up.png", factory)
     levers["down"] = load_sprite("lever_down.png", factory)
@@ -118,7 +124,12 @@ def driver_main(renderer, factory, s):
                 if (type == "update"):
                     tank_angle = loaded_data["tank"]["angle"] / math.pi * 180
                     gun_angle = loaded_data["tank"]["gun_angle"] / math.pi * 180
-                    print(tank_angle)
+
+                    score = loaded_data["score"]
+                    score_sprite = render_text("score: " + str(score), factory)
+                    score_sprite.x = 320 // 2 - score_sprite.size[0] // 2
+                    score_sprite.y = 2
+                    score_sprite.center = False
 
             if not server_data:
                 print("Server disconnected")
@@ -131,7 +142,7 @@ def driver_main(renderer, factory, s):
         compass_needle.angle = -tank_angle - 90
         compass_needle_small.angle = -gun_angle - 90
 
-        render_sprites([background, compass_needle, compass_needle_small], renderer)
+        render_sprites([background, compass_needle, compass_needle_small, score_sprite], renderer)
 
         render_lever(LEVER_1_X, levers, lever_dir(keys["u1"], keys["d1"]), renderer)
         render_lever(LEVER_2_X, levers, lever_dir(keys["u2"], keys["d2"]), renderer)

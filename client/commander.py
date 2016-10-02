@@ -2,6 +2,7 @@ import sdl2
 
 import json
 import vec
+import random
 
 import render_util as ru
 from select import select
@@ -27,17 +28,31 @@ HEALTH_BAR_WIDTH = 16
 SCROLL_BORDER = 50
 
 def render_tile(x, y, tiles, renderer, cam_pos):
-    index = (x + y) % len(tiles)
+    rand_vec = (12.9898, 78.233)
+    rand_num = 43758.5453
+    random = (math.sin(x * rand_vec[0] + y * rand_vec[1])*rand_num)%1
+    index = int(len(tiles) * random)
     tiles[index].x = x * 64
     tiles[index].y = y * 64
     ru.render_sprites([tiles[index]], renderer, cam_pos = cam_pos)
+
+smoke_list = []
+
+def create_explosion(pos, strength, particles, explosion_sprites):
+    for i in range(10):
+        angle = random.randint(0, 1000) / 1000 * math.pi * 2
+        speed  = random.randint(300, 1000) / 1000 * 15
+        
+        vel = vec.vec2_from_direction(angle, speed)
+        particles.append(particle.create_explosion_particle(pos, vel, explosion_sprites))
+
+
 
 def commander_main(renderer, factory, socket):
     print("I'm a commander!")
 
     camera_position = vec.Vec2(0, 0)
 
-    # TODO add needle
     tank_top_sprite = ru.load_sprite("tank top.png", factory)
     tank_bottom_sprite = ru.load_sprite("tank bot.png", factory)
     enemy_sprite = ru.load_sprite("enemy1_body.png", factory)
@@ -45,7 +60,13 @@ def commander_main(renderer, factory, socket):
     bullet_sprite = ru.load_sprite("bullet_normal.png", factory)
     bullet_sprite.scale = (0.1, 0.1)
 
-    tiles = [ru.load_sprite("tile" + str(i + 1) + ".png", factory) for i in range(4)]
+    score_sprite = ru.render_text("score: 0", factory)
+    score_sprite.x = 320 // 2 - score_sprite.size[0] // 2
+    score_sprite.y = 2
+    score_sprite.center = False
+    score = 0
+
+    tiles = [ru.load_sprite("tile" + str(i + 1) + ".png", factory) for i in range(6)]
 
     running = True
 
@@ -58,7 +79,11 @@ def commander_main(renderer, factory, socket):
     last_update = time.time()
 
     particles = []
-    particles.append(particle.Particle(vec.Vec2(100, 100), vec.Vec2(5,5), 0.5, particle.load_smoke_particles(factory)))
+    #particles.append(particle.Particle(vec.Vec2(100, 100), vec.Vec2(5,5), 0.5, particle.load_smoke_particles(factory)))
+
+    global smoke_list
+    smoke_list = particle.load_smoke_particles(factory)
+    explosion_sprites = particle.load_explosion_particles(factory)
 
 
 
@@ -70,6 +95,8 @@ def commander_main(renderer, factory, socket):
     tank_health_green.center = False
 
     old_frame_time = time.time()
+
+    create_explosion(vec.Vec2(100, 100), 50, particles, explosion_sprites)
 
     while running:
         new_frame_time = time.time()
@@ -108,6 +135,12 @@ def commander_main(renderer, factory, socket):
                     update_tank_sprite(tank_top_sprite, tank_bottom_sprite, 
                                        tank_data, tank_health_red, tank_health_green)
 
+                    score = loaded_data["score"]
+                    score_sprite = ru.render_text("score: " + str(score), factory)
+                    score_sprite.x = 320 // 2 - score_sprite.size[0] // 2
+                    score_sprite.y = 2
+                    score_sprite.center = False
+
             if not server_data:
                 print("Server disconnected")
                 running = False
@@ -134,8 +167,8 @@ def commander_main(renderer, factory, socket):
 
         ru.render_sprites([tank_bottom_sprite, tank_top_sprite, 
                            tank_health_red, tank_health_green], renderer, camera_position)
-        _render_enemies(enemies, renderer, enemy_sprite,
-                        enemy_turret_sprite, camera_position, factory)
+        _render_enemies(enemies, renderer, enemy_sprite, enemy_turret_sprite, camera_position, factory, particles)
+        ru.render_sprites([score_sprite], renderer)
         _render_bullets(bullets, renderer, bullet_sprite, camera_position)
 
         for p in particles:
@@ -148,12 +181,14 @@ def commander_main(renderer, factory, socket):
         sdl2.render.SDL_RenderPresent(renderer.sdlrenderer)
 
 
-def _render_enemies(enemies, renderer, enemy_sprite, enemy_turret_sprite, cam_pos, factory):
+def _render_enemies(enemies, renderer, enemy_sprite, enemy_turret_sprite, cam_pos, factory, particles):
     for enemy in enemies:
+        enemy_health = enemy["health"]
+        original_health = enemy["original_health"]
         health_red = ru.create_rect(RED, (HEALTH_BAR_WIDTH, HEALTH_BAR_HEIGHT), factory)
         health_green = ru.create_rect(HEALTH_GREEN,
                                       (int(HEALTH_BAR_WIDTH *
-                                       (enemy["health"] / enemy["original_health"])),
+                                       (enemy_health / original_health)),
                                                     HEALTH_BAR_HEIGHT), factory)
         health_red.center = False
         health_green.center = False
@@ -172,6 +207,10 @@ def _render_enemies(enemies, renderer, enemy_sprite, enemy_turret_sprite, cam_po
         enemy_turret_sprite.angle = vec.radians_to_degrees(enemy["turret_angle"])
         ru.render_sprites([enemy_sprite, enemy_turret_sprite, health_red, health_green],
                           renderer, cam_pos)
+
+        if enemy_health <= original_health / 2 and time.time() % 0.1 < 0.01:
+            pos = vec.Vec2(x, y)
+            particles.append(particle.create_smoke_particle(pos, smoke_list))
 
 
 def _render_bullets(bullets, renderer, bullet_sprite, cam_pos):

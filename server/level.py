@@ -19,7 +19,7 @@ SPAWN_FREQUENCY = 1
 TANK_SIZE = 14
 MAXIMUM_SPAWN_DISTANCE = 100
 ENEMY_SPEED = 20
-ENEMY_TURN_SPEED  = math.pi / 2
+ENEMY_TURN_SPEED = math.pi / 2
 DESPAWN_RADIUS = 500
 AIR_STRIKE_STARTING_DISTANCE = 200
 AIR_STRIKE_SPEED = 150
@@ -121,6 +121,7 @@ class Level():
         self.tank = tank
         self.enemies = []
         self.bullets = []
+        self.score = 0
 
     def update(self, delta_time):
         if self.tank.firing_left:
@@ -168,7 +169,7 @@ class Level():
         if cannon == FIRE_LEFT:
             self.bullets.append(Bullet(
                 self.tank.position + vec2_from_direction(
-                    # Move the bullet slightly to the left 
+                    # Move the bullet slightly to the left
                     self.tank.gun_angle - (math.pi/2), TANK_SIZE/2) + \
                     vec2_from_direction(self.tank.gun_angle, TANK_SIZE + 3),
                                       self.tank.gun_angle))
@@ -191,7 +192,6 @@ class Level():
             for enemy in self.enemies:
                 if bullet.position.is_within_bounds(enemy.position, enemy.size):
                     enemy.health -= bullet.damage
-                    self.bullets.remove(bullet)
                     bullets_to_remove.append(bullet)
                     print("ENEMY HIT")
         self.bullets = [bullet for bullet in self.bullets if bullet not in bullets_to_remove]
@@ -237,7 +237,20 @@ class Level():
 
 
     def _remove_dead_enemies(self):
-        self.enemies = [e for e in self.enemies if not e.is_dead()]
+        temp_enemies = []
+        dead_enemies = 0
+        for e in self.enemies:
+            if (e.is_dead()):
+                dead_enemies+=1
+            else:
+                temp_enemies.append(e)
+        self.enemies = temp_enemies
+        self._increment_score(dead_enemies)
+
+        #self.enemies = [e for e in self.enemies if not e.is_dead()]
+
+    def _increment_score(self, dead_enemies):
+        self.score += 1 * dead_enemies
 
     def _fire_enemies(self, delta_time):
         for enemy in self.enemies:
