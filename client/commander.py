@@ -55,21 +55,10 @@ def commander_main(renderer, factory, socket):
             for data in decoded_server_data:
                 (type, loaded_data) = decode_socket_json_msg(data)
                 if type == "update":
-<<<<<<< HEAD
-                    tank = loaded_data["tank"]
+                    tank_data = loaded_data["tank"]
                     enemies = loaded_data["enemies"]
                     bullets = loaded_data["bullets"]
-                    tank_top_sprite.x = tank["position"]["x"]
-                    tank_top_sprite.y = tank["position"]["y"]
-                    tank_top_sprite.angle = tank["gun_angle"]
-
-                   # print("Got update msg with x {} y {}".format(tank["position"]["x"],tank["position"]["y"]))
-=======
-                    tank_data = loaded_data["tank"]
                     update_tank_sprite(tank_top_sprite, tank_bottom_sprite, tank_data)
-
-
->>>>>>> 23958aef7c5e219742599b92c8633b44cdd5562e
 
             if not server_data:
                 print("Server disconnected")
@@ -78,10 +67,9 @@ def commander_main(renderer, factory, socket):
             if server_data == b"exit":
                 running = False
 
-<<<<<<< HEAD
         _render_enemies(enemies, renderer, factory)
         _render_bullets(bullets, renderer, factory)
-        ru.render_sprites([tank_top_sprite], renderer)
+        ru.render_sprites([background, tank_bottom_sprite, tank_top_sprite], renderer)
 
 
 def _render_enemies(enemies, renderer, factory):
@@ -109,10 +97,6 @@ def _render_bullets(bullets, renderer, factory):
 
     ru.render_sprites(sprites, renderer)
 
-=======
-        ru.render_sprites([background, tank_bottom_sprite, tank_top_sprite], renderer)
-
-
 
 def update_tank_sprite(tank_top_sprite, tank_bottom_sprite, tank_data):
     x = round(tank_data["position"]["x"])
@@ -124,4 +108,3 @@ def update_tank_sprite(tank_top_sprite, tank_bottom_sprite, tank_data):
     #tank_top_sprite.angle = tank["gun_angle"]
     tank_bottom_sprite.angle = tank_data["angle"] / math.pi * 180
     tank_top_sprite.angle = tank_data["gun_angle"] / math.pi * 180
->>>>>>> 23958aef7c5e219742599b92c8633b44cdd5562e
