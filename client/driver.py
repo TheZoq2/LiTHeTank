@@ -61,9 +61,10 @@ def driver_main(renderer, factory, s):
 
     socket_buffer = SocketBuffer()
 
+
+    keys_have_changed = False
     while running:
 
-        keys_have_changed = False
         events = sdl2.ext.get_events()
         for event in events:
             if event.type == sdl2.SDL_QUIT:
@@ -113,10 +114,9 @@ def driver_main(renderer, factory, s):
             if server_data == b"exit":
                 running = False
 
-        renderer.render([background])
 
         compass_needle.angle = -tank_angle
-        render_sprites([compass_needle], renderer)
+        render_sprites([background, compass_needle], renderer)
 
         render_lever(LEVER_1_X, levers, lever_dir(keys["u1"], keys["d1"]), renderer)
         render_lever(LEVER_2_X, levers, lever_dir(keys["u2"], keys["d2"]), renderer)
