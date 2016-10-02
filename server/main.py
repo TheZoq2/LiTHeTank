@@ -18,7 +18,7 @@ TANK_SPEED = 10
 TURRET_TURN_SPEED = 1
 SHOOTING_COOLDOWN = 1;
 
-TANK_HEALTH = 100000
+TANK_HEALTH = 1000
 
 class Tank:
     def  __init__(self):
