@@ -3,6 +3,9 @@ import math
 def vec2_from_direction(angle, length):
     return Vec2(math.cos(angle), math.sin(angle)) * length
 
+def radians_to_degrees(angle):
+    return (angle / math.pi) * 180
+
 class Vec2:
 
     def __init__(self, x, y = None):

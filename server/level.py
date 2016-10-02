@@ -12,8 +12,9 @@ DEFAULT_ENEMY_SIZE = 5
 DEFAULT_BULLET_DAMAGE = 10
 DEFAULT_BULLET_SPEED = 2
 DEFAULT_ENEMY_HEALTH = 20
-SPAWN_FREQUENCY = 10
+SPAWN_FREQUENCY = 1
 TANK_SIZE = 16
+MAXIMUM_SPAWN_DISTANCE = 100
 
 # The default probability for the enemies. Higher numbers result in lower frequencies
 DEFAULT_FIRING_FREQUENCY = 10
@@ -105,15 +106,14 @@ class Level():
             if should_fire:
                 self._enemy_fire(enemy)
                 
-    #TODO: FUCK DIN KOD MALCOLM. KLIENTERNA VILL INTE HA 100KB data
     def _enemy_fire(self, enemy):
         self.bullets.append(Bullet(
             enemy.position + vec2_from_direction(enemy.angle, enemy.size + 3), enemy.angle))
     
     def _spawn_enemies(self, delta_time):
         if random.randint(0, int(SPAWN_FREQUENCY / delta_time)) == 0:
-            randx = random.randint(-1000, 1000)
-            randy = random.randint(-1000, 1000)
+            randx = self.tank.position.x + random.randint(-MAXIMUM_SPAWN_DISTANCE, MAXIMUM_SPAWN_DISTANCE)
+            randy = self.tank.position.y + random.randint(-MAXIMUM_SPAWN_DISTANCE, MAXIMUM_SPAWN_DISTANCE)
             self.enemies.append(Enemy(Vec2(randx, randy)))
         
 
