@@ -104,7 +104,7 @@ def gunner_main(renderer, factory, s):
             if shoot_pressed:
                 msg = create_socket_msg("shoot", json.dumps({"barrel": barrel}))
                 send_msg_to_socket(ready_to_write[0], msg)
-                shoot_is_pressed = False
+                shoot_pressed = False
 
         for ready in ready_to_read:
             server_data = ready.recv(102400).decode("utf-8")

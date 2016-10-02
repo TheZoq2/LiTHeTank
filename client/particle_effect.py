@@ -1,3 +1,4 @@
+import vec
 import render_util as ru
 
 
@@ -11,6 +12,9 @@ def load_smoke_particles(factory):
         ru.load_sprite("smoke6.png", factory),
         ru.load_sprite("smoke7.png", factory)
     ]
+
+def create_smoke_particle(pos, sprite_list):
+    return Particle(pos, vec.Vec2(0,10), 1.3, sprite_list)
 
 class Particle:
     def __init__(self, pos, vel, sprite_time, sprite_list):
@@ -29,6 +33,7 @@ class Particle:
         if self.this_index_time > self.sprite_time:
             self.current_index += 1
 
+            print(self.current_index)
             if self.current_index >= len(self.sprite_list):
                 self.is_alive = False
 
