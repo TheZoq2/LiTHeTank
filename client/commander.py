@@ -25,12 +25,15 @@ def commander_main(renderer, factory, socket):
     enemy_sprite = ru.load_sprite("enemy1_body.png", factory)
     enemy_turret_sprite  = ru.load_sprite("enemy1_turret.png", factory)
     bullet_sprite = ru.load_sprite("bullet_normal.png", factory)
-    background = factory.from_color(GREEN, size=(320, 180))
-    background.angle = 0
+    bullet_sprite.scale = (0.1, 0.1)
+    background = ru.create_rect(GREEN, (320, 180), factory)
 
     running = True
 
     socket_buffer = SocketBuffer()
+
+    enemies = []
+    bullets = []
 
     while running:
 
@@ -45,18 +48,12 @@ def commander_main(renderer, factory, socket):
         #ready_to_write[0].send_msg_to_socket()
         send_msg_to_socket(ready_to_write[0], create_socket_msg("update", ""))
 
-        enemies = []
-        bullets = []
-
         for ready in ready_to_read:
             server_data = ready.recv(4096).decode("utf-8")
             socket_buffer.push_string(server_data)
 
             #decoded_server_data = decode_socket_data(server_data)
             decoded_server_data = socket_buffer.get_messages()
-
-            tank_top_sprite.x = 200
-            tank_top_sprite.y = 200
 
             for data in decoded_server_data:
                 (type, loaded_data) = decode_socket_json_msg(data)

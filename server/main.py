@@ -49,6 +49,12 @@ class Tank:
     def set_turn_direction(self, dir):
         self.turn_direction = dir
 
+    def shoot(self, barrel):
+        if barrel == "left":
+            self.firing_left = True
+        else:
+            self.firing_right = True
+
 class Role(Enum):
     COMMANDER = 0,
     GUNNER = 1,
@@ -106,13 +112,12 @@ def update_client(client, level):
     for s in ready_to_write:
         if client.has_requested_data == True:
             client.has_requested_data = False
-            print("sending update")
             send_msg_to_socket(s, create_socket_msg("update", level.to_json()))
 
     for s in ready_to_read:
         data = s.recv(10000).decode('utf-8')
         client.socket_buffer.push_string(data)
-        
+
         if not data:
             print("Lost connection to client")
             s.close()
@@ -128,9 +133,10 @@ def update_client(client, level):
                     client.has_requested_data =  True
                 if type == "turn_state":
                     level.tank.set_turn_direction(data["direction"])
+                if type == "shoot":
+                    level.tank.shoot(data["barrel"])
                 if type == "track_state":
                     level.tank.set_track_state(data["left_amount"], data["right_amount"])
-                    print(level.tank.left_track)
                 else:
                     handle_game_msg_from_client(client, level)
 

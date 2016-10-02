@@ -28,7 +28,9 @@ def gunner_main(renderer, factory, s):
     while running:
 
         key_is_pressed = False
+        shoot_pressed = False
         new_turn_dir = 0
+        barrel = ""
 
         events = sdl2.ext.get_events()
         for event in events:
@@ -36,16 +38,24 @@ def gunner_main(renderer, factory, s):
                 running = False
                 break
             if event.type == sdl2.SDL_KEYDOWN:
-                if event.key.keysym.sym == sdl2.SDLK_k:
+                keysym = event.key.keysym.sym
+                if keysym == sdl2.SDLK_k:
                     new_turn_dir = 1
                     key_is_pressed = True
-                elif event.key.keysym.sym == sdl2.SDLK_j:
+                elif keysym == sdl2.SDLK_j:
                     new_turn_dir = -1
                     key_is_pressed = True
+                elif keysym == sdl2.SDLK_a:
+                    shoot_pressed = True
+                    barrel = "left"
+                elif keysym == sdl2.SDLK_s:
+                    shoot_pressed = True
+                    barrel = "right"
             if event.type == sdl2.SDL_KEYUP:
-                if event.key.keysym.sym == sdl2.SDLK_k:
+                keysym = event.key.keysym.sym
+                if keysym == sdl2.SDLK_k:
                     key_is_pressed = True
-                elif event.key.keysym.sym == sdl2.SDLK_j:
+                elif keysym == sdl2.SDLK_j:
                     key_is_pressed = True
 
 
@@ -62,12 +72,14 @@ def gunner_main(renderer, factory, s):
             msg = create_socket_msg("turn_state", json.dumps({"direction": new_turn_dir}))
             send_msg_to_socket(ready_to_write[0], msg)
 
+        if shoot_pressed:
+            msg = create_socket_msg("shoot", json.dumps({"barrel": barrel}))
+            send_msg_to_socket(ready_to_write[0], msg)
+
         for ready in ready_to_write:
             send_msg_to_socket(ready, create_socket_msg("update", ""))
 
         for ready in ready_to_read:
-
-
             server_data = ready.recv(102400).decode("utf-8")
 
             socket_buffer.push_string(server_data);
