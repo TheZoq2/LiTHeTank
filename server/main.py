@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 
+import sys
 import random
 import socket
 from vec import *
@@ -15,6 +16,7 @@ PORT = 2000
 
 TANK_SPEED = 10
 TURRET_TURN_SPEED = 1
+SHOOTING_COOLDOWN = 1;
 
 class Tank:
     def  __init__(self):
@@ -25,6 +27,7 @@ class Tank:
         self.firing_left = False
         self.firing_right = False
         self.turn_direction = 0
+        self.last_shot = (time.time(), time.time())
 
         self.left_track = 0
         self.right_track = 0
@@ -42,6 +45,9 @@ class Tank:
         self.angle += add_angle * delta_t
         self.position += vec2_from_direction(self.angle, add_speed * delta_t)
 
+        if self.health < 0:
+            sys.exit(0)
+
     def set_track_state(self, left, right):
         self.left_track = left
         self.right_track = right
@@ -50,10 +56,16 @@ class Tank:
         self.turn_direction = dir
 
     def shoot(self, barrel):
+        now = time.time()
+
         if barrel == "left":
-            self.firing_left = True
+            if (now - self.last_shot[0] >= SHOOTING_COOLDOWN):
+                self.firing_left = True
+                self.last_shot = (now, self.last_shot[1])
         else:
-            self.firing_right = True
+            if (now - self.last_shot[1] >= SHOOTING_COOLDOWN):
+                self.firing_right = True
+                self.last_shot = (self.last_shot[0], now)
 
 class Role(Enum):
     COMMANDER = 0,

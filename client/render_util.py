@@ -15,6 +15,10 @@ def render_sprites(sprites, renderer, cam_pos = Vec2(0, 0)):
         rect.w = int(scale_x * rect.w)
         rect.h = int(scale_y * rect.h)
 
+        if sprite.center:
+            rect.x -= rect.w // 2
+            rect.y -= rect.h // 2
+
         if sdl2.render.SDL_RenderCopyEx(renderer.sdlrenderer,
                                         sprite.texture,
                                         None,
@@ -28,10 +32,12 @@ def load_sprite(path, factory):
     sprite = factory.from_image(RESOURCES.get_path(path))
     sprite.angle = 0
     sprite.scale = (1, 1)
+    sprite.center = True
     return sprite
 
 def create_rect(color, size, factory):
     sprite = factory.from_color(color, size=size)
     sprite.angle = 0
     sprite.scale = (1, 1)
+    sprite.center = True
     return sprite
