@@ -55,9 +55,6 @@ def commander_main(renderer, factory, socket):
             #decoded_server_data = decode_socket_data(server_data)
             decoded_server_data = socket_buffer.get_messages()
 
-            tank_top_sprite.x = 200
-            tank_top_sprite.y = 200
-
             for data in decoded_server_data:
                 (type, loaded_data) = decode_socket_json_msg(data)
                 if type == "update":
