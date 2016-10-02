@@ -81,9 +81,12 @@ class Level():
         for bullet in self.bullets:
             if bullet.position.is_within_bounds(self.tank.position, TANK_SIZE):
                 self.tank.health -= bullet.damage
+                self.bullets.remove(bullet)
+                continue
             for enemy in self.enemies:
                 if bullet.position.is_within_bounds(enemy.position, enemy.size):
                     enemy.health -= bullet.damage
+                    self.bullets.remove(bullet)
 
     def _update_bullet_positions(self, delta_time):
         for bullet in self.bullets:
@@ -112,8 +115,10 @@ class Level():
     
     def _spawn_enemies(self, delta_time):
         if random.randint(0, int(SPAWN_FREQUENCY / delta_time)) == 0:
-            randx = self.tank.position.x + random.randint(-MAXIMUM_SPAWN_DISTANCE, MAXIMUM_SPAWN_DISTANCE)
-            randy = self.tank.position.y + random.randint(-MAXIMUM_SPAWN_DISTANCE, MAXIMUM_SPAWN_DISTANCE)
+            randx = self.tank.position.x + \
+                    random.randint(-MAXIMUM_SPAWN_DISTANCE, MAXIMUM_SPAWN_DISTANCE)
+            randy = self.tank.position.y + \
+                    random.randint(-MAXIMUM_SPAWN_DISTANCE, MAXIMUM_SPAWN_DISTANCE)
             self.enemies.append(Enemy(Vec2(randx, randy)))
         
 
