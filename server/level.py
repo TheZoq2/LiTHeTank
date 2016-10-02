@@ -54,6 +54,18 @@ class Bullet():
         self.damage = damage
 
 
+def turn_angle_to_angle(angle, target_angle, speed, threshold):
+    angle_diff = abs(angle - target_angle)
+    angle_diff = ((angle_diff + math.pi) % (math.pi * 2)) - math.pi
+    if abs(angle_diff) > threshold:
+        if angle_diff < 0:
+            return (angle + speed, False)
+        else:
+            return (angle - speed, False)
+    else:
+        return (angle, True)
+
+
 class Level():
     
     def __init__(self, tank):
@@ -115,23 +127,16 @@ class Level():
             enemy_to_tank = enemy.position - self.tank.position
 
             if enemy.state == HUNTING:
-                #enemy.angle = -enemy.position.relative_angle_to(self.tank.position)
+                target_angle = enemy.position.relative_angle_to(self.tank.position)
                 #enemy.position += vec2_from_direction(enemy.angle, ENEMY_SPEED * delta_time)
                 enemy_to_tank = enemy.position - self.tank.position
                 if abs(enemy_to_tank) > shoot_range[1]:
-                    target_angle = enemy.position.relative_angle_to(self.tank.position)
-
-                    angle_diff = abs(target_angle - enemy.angle)
-                    angle_diff = ((angle_diff + math.pi) % (math.pi * 2)) - math.pi
-                    if abs(angle_diff) > math.pi / 5:
-                        if angle_diff < 0:
-                            enemy.angle += ENEMY_TURN_SPEED * delta_time 
-                        else:
-                            enemy.angle -= ENEMY_TURN_SPEED * delta_time 
-                    else:
-                        enemy.position -= vec2_from_direction(enemy.angle, ENEMY_SPEED * delta_time)
-                else:
-                    enemy.state = SHOOTING
+                    (enemy.angle, has_to_turn) = turn_angle_to_angle(
+                                        enemy.angle, 
+                                        target_angle, 
+                                        ENEMY_TURN_SPEED * delta_time,
+                                        math.pi / 7)
+                    enemy.position += vec2_from_direction(enemy.angle, ENEMY_SPEED * delta_time)
             elif enemy.state == SHOOTING:
                 if abs(enemy_to_tank) < shoot_range[0] or abs(enemy_to_tank) > shoot_range[1]:
                     enemy.state = HUNTING

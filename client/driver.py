@@ -90,13 +90,13 @@ def driver_main(renderer, factory, s):
         ready_to_read, ready_to_write, in_error = select([s], [s], [], 0)
 
 
-        #Send an update message to the server
-        if keys_have_changed:
-            send_keys(ready_to_write[0], keys)
 
 
         for ready in ready_to_write:
             send_msg_to_socket(ready, create_socket_msg("update", ""))
+            #Send an update message to the server
+            if keys_have_changed:
+                send_keys(ready, keys)
 
         for ready in ready_to_read:
 
