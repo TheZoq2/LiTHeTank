@@ -7,7 +7,7 @@ import math
 import sdl2
 import sdl2.ext
 from socket_util import *
-from render_util import *
+import render_util as ru
 from gunner import *
 from commander import *
 from driver import *
@@ -47,8 +47,7 @@ def run():
     s.setblocking(False)
 
     window, renderer, factory = create_window()
-    background = factory.from_color(GREEN, size=(320, 180))
-    background.angle = 0
+    background = ru.create_rect(GREEN, (320, 180), factory)
 
     running = True
     while running:

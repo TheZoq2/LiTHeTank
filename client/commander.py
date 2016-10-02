@@ -25,8 +25,8 @@ def commander_main(renderer, factory, socket):
     enemy_sprite = ru.load_sprite("enemy1_body.png", factory)
     enemy_turret_sprite  = ru.load_sprite("enemy1_turret.png", factory)
     bullet_sprite = ru.load_sprite("bullet_normal.png", factory)
-    background = factory.from_color(GREEN, size=(320, 180))
-    background.angle = 0
+    bullet_sprite.scale = (0.1, 0.1)
+    background = ru.create_rect(GREEN, (320, 180), factory)
 
     running = True
 
