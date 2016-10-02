@@ -11,7 +11,7 @@ from enum import Enum
 FIRE_LEFT = 0
 FIRE_RIGHT = 1
 
-DEFAULT_ENEMY_SIZE = 5
+DEFAULT_ENEMY_SIZE = 16
 DEFAULT_BULLET_DAMAGE = 10
 DEFAULT_BULLET_SPEED = 150
 DEFAULT_ENEMY_HEALTH = 20
@@ -27,6 +27,18 @@ DEFAULT_FIRING_FREQUENCY = 3.5
 
 HUNTING = 0,
 SHOOTING = 1,
+
+
+def turn_angle_to_angle(angle, target_angle, speed, threshold):
+    angle_diff = target_angle - angle
+    angle_diff = ((angle_diff + math.pi) % (math.pi * 2)) - math.pi
+    if abs(angle_diff) > threshold:
+        if angle_diff < 0:
+            return (angle + speed, False)
+        else:
+            return (angle - speed, False)
+    else:
+        return (angle, True)
 
 
 class Enemy():
@@ -50,24 +62,13 @@ class Enemy():
 
 
 class Bullet():
+
     def __init__(self, position, angle,
                  speed=DEFAULT_BULLET_SPEED,
                  damage=DEFAULT_BULLET_DAMAGE):
         self.position = position
         self.velocity = vec2_from_direction(angle, speed)
         self.damage = damage
-
-
-def turn_angle_to_angle(angle, target_angle, speed, threshold):
-    angle_diff = target_angle - angle
-    angle_diff = ((angle_diff + math.pi) % (math.pi * 2)) - math.pi
-    if abs(angle_diff) > threshold:
-        if angle_diff < 0:
-            return (angle + speed, False)
-        else:
-            return (angle - speed, False)
-    else:
-        return (angle, True)
 
 
 class Level():
@@ -84,6 +85,7 @@ class Level():
         elif self.tank.firing_right:
             self._fire_tank(FIRE_RIGHT)
             self.tank.firing_right = False
+        self._handle_bullet_collisions()
         self._update_bullet_positions(delta_time)
         self._update_enemy_positions(delta_time)
         self._fire_enemies(delta_time)
@@ -95,9 +97,21 @@ class Level():
 
     def _fire_tank(self, cannon):
         # TODO differentiate between left and right
-        self.bullets.append(Bullet(
-            self.tank.position + vec2_from_direction(self.tank.gun_angle, TANK_SIZE + 3),
-                                  self.tank.gun_angle))
+        if cannon == FIRE_LEFT:
+            self.bullets.append(Bullet(
+                self.tank.position + vec2_from_direction(
+                    # Move the bullet slightly to the left 
+                    self.tank.gun_angle - (math.pi/2), TANK_SIZE/2) + \
+                    vec2_from_direction(self.tank.gun_angle, TANK_SIZE + 3),
+                                      self.tank.gun_angle))
+        else:
+            self.bullets.append(Bullet(
+                self.tank.position + vec2_from_direction(
+                    # Move the bullet slightly to the right
+                    self.tank.gun_angle + (math.pi/2), TANK_SIZE/2) + \
+                    vec2_from_direction(self.tank.gun_angle, TANK_SIZE + 3),
+                                      self.tank.gun_angle))
+
 
     def _handle_bullet_collisions(self):
         bullets_to_remove = []
