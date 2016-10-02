@@ -28,6 +28,8 @@ HEALTH_BAR_WIDTH = 16
 
 SCROLL_BORDER = 50
 
+BLINK_INTERVAL = 0.5
+
 def render_tile(x, y, tiles, renderer, cam_pos):
     rand_vec = (12.9898, 78.233)
     rand_num = 43758.5453
@@ -61,6 +63,7 @@ def commander_main(renderer, factory, socket):
     bullet_sprite = ru.load_sprite("bullet_normal.png", factory)
     bullet_sprite.scale = (0.1, 0.1)
     box_sprite = ru.load_sprite("air_strike.png", factory)
+    plane_sprite = ru.load_sprite("plane.png", factory)
 
     score_sprite = ru.render_text("score: 0", factory)
     score_sprite.x = 320 // 2 - score_sprite.size[0] // 2
@@ -88,7 +91,7 @@ def commander_main(renderer, factory, socket):
     smoke_list = particle.load_smoke_particles(factory)
     explosion_sprites = particle.load_explosion_particles(factory)
 
-
+    blink_timer = 0
 
     #Health bar stuff
     tank_health_red = ru.create_rect(RED, (HEALTH_BAR_WIDTH, HEALTH_BAR_HEIGHT), factory)
@@ -175,6 +178,11 @@ def commander_main(renderer, factory, socket):
                 tile_y = camera_position.y // tile_size + y
                 render_tile(tile_x, tile_y, tiles, renderer, camera_position)
 
+        blink_timer += delta_t
+        if blink_timer > BLINK_INTERVAL * 2:
+            blink_timer -= BLINK_INTERVAL * 2
+        show_warning = blink_timer < BLINK_INTERVAL
+
         ru.render_sprites([tank_bottom_sprite, tank_top_sprite,
                            tank_health_red, tank_health_green], renderer, camera_position)
         _render_enemies(enemies, renderer, enemy_sprite, enemy_turret_sprite, camera_position, factory, particles)
@@ -187,19 +195,27 @@ def commander_main(renderer, factory, socket):
 
         particles = [a for a in particles if a.is_alive]
 
-        if airstrike:
-            _render_air_strike(airstrike, renderer, camera_position, box_sprite)
+        if airstrike is not None:
+            _render_air_strike(airstrike, renderer, camera_position, box_sprite, plane_sprite, show_warning)
 
         sdl2.render.SDL_RenderPresent(renderer.sdlrenderer)
 
 
-def _render_air_strike(airstrike, renderer, camera_position, box):
-    box.x = int(airstrike["target"]["x"])
-    box.y = int(airstrike["target"]["y"])
-
+def _render_air_strike(airstrike, renderer, camera_position, box, plane, show_warning):
     vel = vec.Vec2(airstrike["velocity"]["x"], airstrike["velocity"]["y"])
-    box.angle = int(vel.angle())
-    ru.render_sprites([box], renderer, camera_position)
+    angle = int(vec.radians_to_degrees(vel.angle()))
+
+    if show_warning:
+        box.x = int(airstrike["target"]["x"])
+        box.y = int(airstrike["target"]["y"])
+
+        box.angle = angle
+        ru.render_sprites([box], renderer, camera_position)
+
+    plane.x = int(airstrike["position"]["x"])
+    plane.y = int(airstrike["position"]["y"])
+    plane.angle = angle
+    ru.render_sprites([plane], renderer, camera_position)
 
 
 def _render_enemies(enemies, renderer, enemy_sprite, enemy_turret_sprite, cam_pos, factory, particles):
@@ -266,13 +282,15 @@ def update_tank_sprite(tank_top_sprite, tank_bottom_sprite,
 def _handle_explosions(particles, explosion_sprites, created_explosions, explosions):
     for exp in explosions:
         id = exp["id"]
+        print("ID: ", id)
         position = exp["position"]
         x = position["x"]
         y = position["y"]
 
         if id not in created_explosions:
-            particles.append(create_explosion(vec.Vec2(x, y), 0, particles, explosion_sprites))
-            created_explosions["id"] = id
+            create_explosion(vec.Vec2(x, y), 0, particles, explosion_sprites)
+            print("Creating an explosison")
+            created_explosions[id] = True
 
 
 

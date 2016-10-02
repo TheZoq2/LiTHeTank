@@ -22,9 +22,9 @@ ENEMY_SPEED = 10
 ENEMY_TURN_SPEED = math.pi / 4
 DESPAWN_RADIUS = 500
 ENEMY_DESPAWN_RADIUS = 500
-AIR_STRIKE_STARTING_DISTANCE = 200
+AIR_STRIKE_STARTING_DISTANCE = 450
 AIR_STRIKE_SPEED = 150
-AIR_STRIKE_FREQUENCY = 10
+AIR_STRIKE_FREQUENCY = 2
 AIR_STRIKE_EXPLOSION_STRENGTH = 50
 AIR_STRIKE_EXPLOSION_RADIUS = 30
 AIR_STRIKE_BOMB_RESOLUTION = 4
@@ -68,16 +68,16 @@ class AirStrike():
                 vec2_from_direction(random.randrange(0, 7), 
                                     AIR_STRIKE_STARTING_DISTANCE)
         velocity = vec2_from_direction(start_position.relative_angle_to(tank_position),
-                                      AIR_STRIKE_SPEED)
+                                      -AIR_STRIKE_SPEED)
         return start_position, velocity
 
     def should_drop_bomb(self):
         if not self.bombs:
             return False
         bomb = self.bombs[0]
-        position_vector = vec2_from_direction(self.velocity.angle(), 
-                                              bomb * INTER_AIR_STRIKE_DISTANCE)
-        return position_vector.is_within_bounds(self.position, AIR_STRIKE_BOMB_RESOLUTION)
+        #position_vector = vec2_from_direction(self.velocity.angle(), 
+                                              #bomb * INTER_AIR_STRIKE_DISTANCE)
+        return self.target.is_within_bounds(self.position, AIR_STRIKE_BOMB_RESOLUTION)
 
     def drop_bomb(self):
         """Removes one of the bombs from the list of bombs"""
@@ -157,18 +157,21 @@ class Level():
         for exp in self.explosions:
             exp.time_alive += delta_time
 
+        #print(self.explosions)
+
         self.explosions = [e for e in self.explosions if e.time_alive < 0.1]
 
     def _add_explosion(self, pos, strength):
         self.explosions.append(Explosion(pos, self.next_explossion_id))
         self.next_explossion_id += 1
+        print("Added an  explosion")
 
     def to_json(self):
         return json.dumps(self, default=lambda o: o.__dict__, sort_keys=True, indent=4)
 
     def _update_air_strike_position(self, delta_time):
         if self.air_strike is not None:
-            self.air_strike.position += self.air_strike.velocity
+            self.air_strike.position += self.air_strike.velocity * delta_time
             if self.air_strike.should_drop_bomb():
                 self.air_strike.drop_bomb()
                 self._damage_players_explosion(AIR_STRIKE_BOMB_DAMAGE,
@@ -191,7 +194,7 @@ class Level():
 
     def _spawn_airstrike(self, delta_time):
         if self.air_strike is None and \
-           (not random.randint(0, int(AIR_STRIKE_FREQUENCY * delta_time))):
+           (not random.randint(0, int(AIR_STRIKE_FREQUENCY / delta_time))):
             self.air_strike = AirStrike(self.tank.position)
 
     def _fire_tank(self, cannon):
@@ -217,13 +220,11 @@ class Level():
             if bullet.position.is_within_bounds(self.tank.position, TANK_SIZE):
                 self.tank.health -= bullet.damage
                 bullets_to_remove.append(bullet)
-                print("TANK HIT")
                 continue
             for enemy in self.enemies:
                 if bullet.position.is_within_bounds(enemy.position, enemy.size):
                     enemy.health -= bullet.damage
                     bullets_to_remove.append(bullet)
-                    print("ENEMY HIT")
         self.bullets = [bullet for bullet in self.bullets if bullet not in bullets_to_remove]
 
     def _update_bullet_positions(self, delta_time):
