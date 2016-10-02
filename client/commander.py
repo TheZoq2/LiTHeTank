@@ -6,18 +6,25 @@ import vec
 import render_util as ru
 from select import select
 from socket_util import *
+from constants import SCREEN_HEIGHT, SCREEN_WIDTH
 import pdb
 import math
 
 WHITE = sdl2.ext.Color(255, 255, 255)
 GREEN = sdl2.ext.Color(150, 255, 120)
 
+SCROLL_BORDER = 50
+
+def render_tile(x, y, tiles, renderer, cam_pos):
+    index = (x + y) % len(tiles)
+    tiles[index].x = x * 64
+    tiles[index].y = y * 64
+    ru.render_sprites([tiles[index]], renderer, cam_pos = cam_pos)
+
 def commander_main(renderer, factory, socket):
     print("I'm a commander!")
 
-    #background = load_sprite("driver_background.png", factory)
-    #renderer.render([background])
-    tank_angle = 0
+    camera_position = vec.Vec2(0, 0)
 
     # TODO add needle
     tank_top_sprite = ru.load_sprite("tank top.png", factory)
@@ -26,7 +33,8 @@ def commander_main(renderer, factory, socket):
     enemy_turret_sprite  = ru.load_sprite("enemy1_turret.png", factory)
     bullet_sprite = ru.load_sprite("bullet_normal.png", factory)
     bullet_sprite.scale = (0.1, 0.1)
-    background = ru.create_rect(GREEN, (320, 180), factory)
+
+    tiles = [ru.load_sprite("tile" + str(i + 1) + ".png", factory) for i in range(4)]
 
     running = True
 
@@ -70,13 +78,32 @@ def commander_main(renderer, factory, socket):
             if server_data == b"exit":
                 running = False
 
-        ru.render_sprites([background, tank_bottom_sprite, tank_top_sprite], renderer)
-        _render_enemies(enemies, renderer, enemy_sprite, enemy_turret_sprite)
-        _render_bullets(bullets, renderer, bullet_sprite)
+        tank_pos = vec.Vec2(tank_bottom_sprite.x, tank_bottom_sprite.y)
+        if tank_pos.x - camera_position.x < SCROLL_BORDER:
+            camera_position.x -= 1
+        elif tank_pos.x - camera_position.x > SCREEN_WIDTH - SCROLL_BORDER:
+            camera_position.x += 1
+        if tank_pos.y - camera_position.y < SCROLL_BORDER:
+            camera_position.y -= 1
+        elif tank_pos.y - camera_position.y > SCREEN_HEIGHT - SCROLL_BORDER:
+            camera_position.y += 1
+
+        tile_size = tiles[0].size[0]
+        for x in range(SCREEN_WIDTH // tile_size + 1):
+            for y in range(SCREEN_HEIGHT // tile_size + 2):
+                tile_x = camera_position.x // tile_size + x
+                tile_y = camera_position.y // tile_size + y
+                render_tile(tile_x, tile_y, tiles, renderer, camera_position)
+
+        ru.render_sprites([tank_bottom_sprite, tank_top_sprite],
+                          renderer, cam_pos = camera_position)
+        _render_enemies(enemies, renderer, enemy_sprite, enemy_turret_sprite,
+                        camera_position)
+        _render_bullets(bullets, renderer, bullet_sprite, camera_position)
         sdl2.render.SDL_RenderPresent(renderer.sdlrenderer)
 
 
-def _render_enemies(enemies, renderer, enemy_sprite, enemy_turret_sprite):
+def _render_enemies(enemies, renderer, enemy_sprite, enemy_turret_sprite, cam_pos):
     for enemy in enemies:
         x = int(enemy["position"]["x"])
         y = int(enemy["position"]["y"])
@@ -86,16 +113,17 @@ def _render_enemies(enemies, renderer, enemy_sprite, enemy_turret_sprite):
         enemy_turret_sprite.y = y
         enemy_sprite.angle = vec.radians_to_degrees(enemy["angle"])
         enemy_turret_sprite.angle = vec.radians_to_degrees(enemy["turret_angle"])
-        ru.render_sprites([enemy_sprite, enemy_turret_sprite], renderer)
+        ru.render_sprites([enemy_sprite, enemy_turret_sprite], renderer,
+                          cam_pos = cam_pos)
 
 
-def _render_bullets(bullets, renderer, bullet_sprite):
+def _render_bullets(bullets, renderer, bullet_sprite, cam_pos):
     for bullet in bullets:
         bullet_sprite.x = int(bullet["position"]["x"])
         bullet_sprite.y = int(bullet["position"]["y"])
         bullet_sprite.angle = vec.radians_to_degrees(
             vec.Vec2(bullet["velocity"]["x"], bullet["velocity"]["y"]).angle())
-        ru.render_sprites([bullet_sprite], renderer)
+        ru.render_sprites([bullet_sprite], renderer, cam_pos = cam_pos)
 
 
 def update_tank_sprite(tank_top_sprite, tank_bottom_sprite, tank_data):

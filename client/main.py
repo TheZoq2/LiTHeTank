@@ -11,6 +11,7 @@ import render_util as ru
 from gunner import *
 from commander import *
 from driver import *
+from constants import *
 
 WHITE = sdl2.ext.Color(255, 255, 255)
 GREEN = sdl2.ext.Color(150, 255, 120)
@@ -24,8 +25,7 @@ def request_data_from_server(socket):
 
 def create_window():
     sdl2.ext.init()
-    window_size = (1280, 720)
-    window = sdl2.ext.Window("LiTHe Tank", size=window_size)
+    window = sdl2.ext.Window("LiTHe Tank", size=WINDOW_SIZE)
     renderer = sdl2.ext.Renderer(window)
     renderer.scale = (4, 4)
     window.show()
@@ -47,7 +47,7 @@ def run():
     s.setblocking(False)
 
     window, renderer, factory = create_window()
-    background = ru.create_rect(GREEN, (320, 180), factory)
+    background = ru.create_rect(GREEN, SCREEN_SIZE, factory)
 
     running = True
     while running:
