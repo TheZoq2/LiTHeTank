@@ -23,14 +23,14 @@ DEFAULT_FIRING_FREQUENCY = 10
 
 class Enemy():
 
-    def __init__(self, position, 
+    def __init__(self, position,
                  angle=None,
                  health=DEFAULT_ENEMY_HEALTH,
                  size=DEFAULT_ENEMY_SIZE,
                  firing_frequency=DEFAULT_FIRING_FREQUENCY):
         self.position = position
         self.angle = angle if angle is not None else 0
-        self.health = health 
+        self.health = health
         self.size = size
         self.firing_frequency = firing_frequency
 
@@ -49,7 +49,7 @@ class Bullet():
 
 
 class Level():
-    
+
     def __init__(self, tank):
         self.tank = tank
         self.enemies = []
@@ -61,7 +61,7 @@ class Level():
             self.tank.firing_left = False
         elif self.tank.firing_right:
             self._fire_tank(FIRE_RIGHT)
-            self.firing_right = False
+            self.tank.firing_right = False
         self._update_bullet_positions(delta_time)
         self._update_enemy_positions(delta_time)
         self._fire_enemies(delta_time)
@@ -72,12 +72,13 @@ class Level():
         return json.dumps(self, default=lambda o: o.__dict__, sort_keys=True, indent=4)
 
     def _fire_tank(self, cannon):
+        print("shooot " + str(cannon))
         # TODO differentiate between left and right
         total_angle = self.tank.gun_angle + self.tank.angle
         self.bullets.append(Bullet(
-            self.tank.position + vec2_from_direction(total_angle, TANK_SIZE + 3), 
+            self.tank.position + vec2_from_direction(total_angle, TANK_SIZE + 3),
                                   total_angle))
-    
+
     def _handle_bullet_collisions(self):
         bullets_to_remove = []
         for bullet in self.bullets:
@@ -106,7 +107,7 @@ class Level():
         for enemy in self.enemies:
             enemy.angle = -enemy.position.relative_angle_to(self.tank.position)
             enemy.position += vec2_from_direction(enemy.angle, ENEMY_SPEED * delta_time)
-    
+
     def _remove_dead_enemies(self):
         self.enemies = [e for e in self.enemies if not e.is_dead()]
 
@@ -117,11 +118,11 @@ class Level():
             # if the random number was 0, fire
             if should_fire:
                 self._enemy_fire(enemy)
-                
+
     def _enemy_fire(self, enemy):
         self.bullets.append(Bullet(
             enemy.position + vec2_from_direction(enemy.angle, enemy.size + 3), enemy.angle))
-    
+
     def _spawn_enemies(self, delta_time):
         if len(self.enemies) < 5:
             if random.randint(0, int(SPAWN_FREQUENCY / delta_time)) == 0:
@@ -130,5 +131,5 @@ class Level():
                 randy = self.tank.position.y + \
                         random.randint(-MAXIMUM_SPAWN_DISTANCE, MAXIMUM_SPAWN_DISTANCE)
                 self.enemies.append(Enemy(Vec2(randx, randy)))
-        
+
 

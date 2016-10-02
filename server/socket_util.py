@@ -23,7 +23,7 @@ def decode_socket_json_msg(msg):
     loaded_data = json.loads(msg)
 
     type = loaded_data["type"]
-    
+
     data = {}
     if loaded_data["data"] != "":
         data = json.loads(loaded_data["data"])
@@ -45,7 +45,6 @@ class SocketBuffer:
         while running:
             if self.buffer.find("{"):
                 index = self.buffer.find("{")
-                print(index)
                 bytes_to_read = int(self.buffer[0:index])
 
                 if len(self.buffer) > bytes_to_read + index:

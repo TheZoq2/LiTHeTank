@@ -31,6 +31,9 @@ def commander_main(renderer, factory, socket):
 
     socket_buffer = SocketBuffer()
 
+    enemies = []
+    bullets = []
+
     while running:
 
         events = sdl2.ext.get_events()
@@ -43,9 +46,6 @@ def commander_main(renderer, factory, socket):
 
         #ready_to_write[0].send_msg_to_socket()
         send_msg_to_socket(ready_to_write[0], create_socket_msg("update", ""))
-
-        enemies = []
-        bullets = []
 
         for ready in ready_to_read:
             server_data = ready.recv(4096).decode("utf-8")
