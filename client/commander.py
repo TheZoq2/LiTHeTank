@@ -122,7 +122,8 @@ def commander_main(renderer, factory, socket):
 
         ru.render_sprites([tank_bottom_sprite, tank_top_sprite, 
                            tank_health_red, tank_health_green], renderer, camera_position)
-        _render_enemies(enemies, renderer, enemy_sprite, enemy_turret_sprite, camera_position, factory)
+        _render_enemies(enemies, renderer, enemy_sprite,
+                        enemy_turret_sprite, camera_position, factory)
         _render_bullets(bullets, renderer, bullet_sprite, camera_position)
         sdl2.render.SDL_RenderPresent(renderer.sdlrenderer)
 
