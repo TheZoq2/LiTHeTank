@@ -3,17 +3,56 @@ from render_util import *
 from select import select
 from socket_util import *
 
+LEVER_1_X = 22
+LEVER_2_X = 240
+LEVER_NEUTRAL_Y = 73
+LEVER_UP_Y = 26
+LEVER_DOWN_Y = 80
+
+def render_lever(x, sprites, direction, renderer):
+    y = LEVER_NEUTRAL_Y
+    sprite = sprites["neutral"]
+
+    if direction > 0:
+        y = LEVER_UP_Y
+        sprite = sprites["up"]
+    elif direction < 0:
+        y = LEVER_DOWN_Y
+        sprite = sprites["down"]
+
+    sprite.x = x
+    sprite.y = y
+    render_sprites([sprite], renderer)
+
+
+def lever_dir(up_key, down_key):
+    direction = 0
+    if up_key:
+        direction += 1
+    if down_key:
+        direction -= 1
+    return direction
+
+
 def driver_main(renderer, factory, s):
     print("I'm a driver!")
 
     background = load_sprite("driver_background.png", factory)
-    renderer.render([background])
     tank_angle = 0
 
     # TODO add needle
     compass_needle = load_sprite("compass_needle.png", factory)
     compass_needle.x = 150
     compass_needle.y = 37
+
+    # small_needle = load_sprite("compass_needle_small.png", factory)
+    # small_needle.x = 227
+    # small_needle.y = 137
+
+    levers = {}
+    levers["up"] = load_sprite("lever_up.png", factory)
+    levers["down"] = load_sprite("lever_down.png", factory)
+    levers["neutral"] = load_sprite("lever_neutral.png", factory)
 
     running = True
 
@@ -75,12 +114,17 @@ def driver_main(renderer, factory, s):
             if server_data == b"exit":
                 running = False
 
+        renderer.render([background])
+
         compass_needle.angle = -tank_angle
         render_sprites([compass_needle], renderer)
 
+        render_lever(LEVER_1_X, levers, lever_dir(keys["u1"], keys["d1"]), renderer)
+        render_lever(LEVER_2_X, levers, lever_dir(keys["u2"], keys["d2"]), renderer)
+
 def send_keys(socket, keys):
-    left_amount = 0;
-    right_amount = 0;
+    left_amount = 0
+    right_amount = 0
     if keys["u1"]:
         left_amount = 1
     if keys["d1"]:
@@ -92,6 +136,6 @@ def send_keys(socket, keys):
 
     #Send a message about the current track state to the server
     msg = create_socket_msg(
-            "track_state", 
+            "track_state",
             json.dumps({"left_amount": left_amount, "right_amount": right_amount}))
     send_msg_to_socket(socket, msg)

@@ -15,6 +15,7 @@ DEFAULT_ENEMY_HEALTH = 20
 SPAWN_FREQUENCY = 1
 TANK_SIZE = 16
 MAXIMUM_SPAWN_DISTANCE = 100
+ENEMY_SPEED = 100
 
 # The default probability for the enemies. Higher numbers result in lower frequencies
 DEFAULT_FIRING_FREQUENCY = 10
@@ -104,7 +105,7 @@ class Level():
     def _update_enemy_positions(self, delta_time):
         for enemy in self.enemies:
             enemy.angle = -enemy.position.relative_angle_to(self.tank.position)
-            enemy.position += vec2_from_direction(enemy.angle, 100 * delta_time)
+            enemy.position += vec2_from_direction(enemy.angle, ENEMY_SPEED * delta_time)
     
     def _remove_dead_enemies(self):
         self.enemies = [e for e in self.enemies if not e.is_dead()]
