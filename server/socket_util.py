@@ -23,7 +23,7 @@ def decode_socket_json_msg(msg):
     loaded_data = json.loads(msg)
 
     type = loaded_data["type"]
-    
+
     data = {}
     print(msg)
     if loaded_data["data"] != "":

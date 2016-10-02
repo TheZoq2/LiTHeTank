@@ -12,9 +12,14 @@ def gunner_main(renderer, factory, s):
 
     background = load_sprite("gunner_background.png", factory)
     compass_needle = load_sprite("compass_needle.png", factory)
+    compass_needle_medium = load_sprite("compass_needle_medium.png", factory)
     compass_needle.x = 223
     compass_needle.y = 41
+    compass_needle_medium.x = 130
+    compass_needle_medium.y = 116
+
     gun_angle = 0
+    tank_angle = 0
 
     running = True
 
@@ -74,6 +79,8 @@ def gunner_main(renderer, factory, s):
                 if type == "update":
                     tank = loaded_data["tank"]
                     gun_angle = tank["gun_angle"]
+                    tank_angle = tank["angle"] / math.pi * 180
+
 
             if not server_data:
                 print("Server disconnected")
@@ -83,5 +90,6 @@ def gunner_main(renderer, factory, s):
                 running = False
 
         compass_needle.angle = -gun_angle
-        render_sprites([background, compass_needle], renderer)
+        compass_needle_medium.angle = -tank_angle
+        render_sprites([background, compass_needle, compass_needle_medium], renderer)
         sdl2.render.SDL_RenderPresent(renderer.sdlrenderer)
