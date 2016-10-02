@@ -22,9 +22,10 @@ def driver_main(renderer, factory, s):
 
     socket_buffer = SocketBuffer()
 
+
+    keys_have_changed = False
     while running:
 
-        keys_have_changed = False
         events = sdl2.ext.get_events()
         for event in events:
             if event.type == sdl2.SDL_QUIT:

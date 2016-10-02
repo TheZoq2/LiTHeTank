@@ -70,6 +70,7 @@ role_list = [Role.COMMANDER, Role.GUNNER, Role.DRIVER]
 class Client():
     def __init__(self, socket):
         self.socket = socket
+        self.socket_buffer = SocketBuffer()
         self.role = None
         self.has_requested_data = False
 
@@ -108,15 +109,16 @@ def update_client(client, level):
             print("sending update")
             send_msg_to_socket(s, create_socket_msg("update", level.to_json()))
 
-
     for s in ready_to_read:
         data = s.recv(10000).decode('utf-8')
+        client.socket_buffer.push_string(data)
+        
         if not data:
             print("Lost connection to client")
             s.close()
             return False
         else:
-            decoded = decode_socket_data(data)
+            decoded = client.socket_buffer.get_messages()
 
             for msg in decoded:
                 (type, data) = decode_socket_json_msg(msg)
