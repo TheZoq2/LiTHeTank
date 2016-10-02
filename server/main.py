@@ -62,7 +62,8 @@ def role_to_string(role):
     if role == Role.DRIVER:
         return "DRIVER"
 
-role_list = [Role.COMMANDER, Role.GUNNER, Role.DRIVER]
+#role_list = [Role.COMMANDER, Role.GUNNER, Role.DRIVER]
+role_list = [Role.GUNNER]
 
 
 
