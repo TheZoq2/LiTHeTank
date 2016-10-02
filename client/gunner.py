@@ -13,16 +13,29 @@ def gunner_main(renderer, factory, s):
     background = load_sprite("gunner_background.png", factory)
     background.center = False
     compass_needle = load_sprite("compass_needle.png", factory)
-    compass_needle.center = False
     compass_needle_medium = load_sprite("compass_needle_medium.png", factory)
-    compass_needle_medium.center = False
+    gunner_wheel = load_sprite("gunner_wheel.png", factory)
+    shoot_button_up = load_sprite("shoot_button_up.png", factory)
+    shoot_button_down = load_sprite("shoot_button_down.png", factory)
     compass_needle.x = 223
     compass_needle.y = 41
+    compass_needle.center = False
     compass_needle_medium.x = 130
     compass_needle_medium.y = 116
+    compass_needle_medium.center = False
+    gunner_wheel.x = 50
+    gunner_wheel.y = 22
+    gunner_wheel.center = False
+    shoot_button_up.x = 21
+    shoot_button_up.y = 120
+    shoot_button_up.center = False
+    shoot_button_down.x = 21
+    shoot_button_down.y = 120
+    shoot_button_down.center = False
 
     gun_angle = 0
     tank_angle = 0
+    button_down = False
 
     running = True
 
@@ -49,12 +62,16 @@ def gunner_main(renderer, factory, s):
                     key_is_pressed = True
                 elif keysym == sdl2.SDLK_a:
                     shoot_pressed = True
+                    button_down = True
                     barrel = "left"
                 elif keysym == sdl2.SDLK_s:
                     shoot_pressed = True
+                    button_down = True
                     barrel = "right"
             if event.type == sdl2.SDL_KEYUP:
                 keysym = event.key.keysym.sym
+                if keysym in (sdl2.SDLK_a, sdl2.SDLK_s):
+                    button_down = False
                 if keysym == sdl2.SDLK_k:
                     key_is_pressed = True
                 elif keysym == sdl2.SDLK_j:
@@ -90,7 +107,7 @@ def gunner_main(renderer, factory, s):
             socket_buffer.push_string(server_data);
 
 
-            #decoded_server_data = decode_socket_data(server_data)
+            #decoded_server_data = decode_socket_data(server_data)Unnamed
             decoded_server_data = socket_buffer.get_messages()
             for data in decoded_server_data:
                 (type, loaded_data) = decode_socket_json_msg(data)
@@ -109,5 +126,12 @@ def gunner_main(renderer, factory, s):
 
         compass_needle.angle = -gun_angle - 90
         compass_needle_medium.angle = -tank_angle - 90
-        render_sprites([background, compass_needle, compass_needle_medium], renderer)
+        gunner_wheel.angle = gun_angle
+        render_sprites([background, compass_needle, compass_needle_medium, gunner_wheel], renderer)
+
+        if (button_down):
+            render_sprites([shoot_button_down], renderer)
+        else:
+            render_sprites([shoot_button_up], renderer)
+
         sdl2.render.SDL_RenderPresent(renderer.sdlrenderer)
