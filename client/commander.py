@@ -6,9 +6,11 @@ import vec
 import render_util as ru
 from select import select
 from socket_util import *
+from constants import SCREEN_HEIGHT, SCREEN_WIDTH
 import pdb
 import math
 import time
+import particle_effect as particle
 
 WHITE = sdl2.ext.Color(255, 255, 255)
 GREEN = sdl2.ext.Color(150, 255, 120)
@@ -16,17 +18,24 @@ GREEN = sdl2.ext.Color(150, 255, 120)
 HEALTH_GREEN = sdl2.ext.Color(0, 255, 0)
 
 HEALTH_BAR_OFFSET = 20
+TANK_HEALTH_OFFSET = 8
 
 RED = sdl2.ext.Color(255, 0, 0)
 HEALTH_BAR_HEIGHT = 2
 HEALTH_BAR_WIDTH = 16
 
+SCROLL_BORDER = 50
+
+def render_tile(x, y, tiles, renderer, cam_pos):
+    index = (x + y) % len(tiles)
+    tiles[index].x = x * 64
+    tiles[index].y = y * 64
+    ru.render_sprites([tiles[index]], renderer, cam_pos = cam_pos)
+
 def commander_main(renderer, factory, socket):
     print("I'm a commander!")
 
-    #background = load_sprite("driver_background.png", factory)
-    #renderer.render([background])
-    tank_angle = 0
+    camera_position = vec.Vec2(0, 0)
 
     tank_top_sprite = ru.load_sprite("tank top.png", factory)
     tank_bottom_sprite = ru.load_sprite("tank bot.png", factory)
@@ -34,8 +43,8 @@ def commander_main(renderer, factory, socket):
     enemy_turret_sprite  = ru.load_sprite("enemy1_turret.png", factory)
     bullet_sprite = ru.load_sprite("bullet_normal.png", factory)
     bullet_sprite.scale = (0.1, 0.1)
-    background = ru.create_rect(GREEN, (320, 180), factory)
-    background.center = False
+
+    tiles = [ru.load_sprite("tile" + str(i + 1) + ".png", factory) for i in range(4)]
 
     running = True
 
@@ -47,7 +56,24 @@ def commander_main(renderer, factory, socket):
     needs_update = True
     last_update = time.time()
 
+    particles = []
+    particles.append(particle.Particle(vec.Vec2(100, 100), vec.Vec2(5,5), 0.5, particle.load_smoke_particles(factory)))
+
+
+
+    #Health bar stuff
+    tank_health_red = ru.create_rect(RED, (HEALTH_BAR_WIDTH, HEALTH_BAR_HEIGHT), factory)
+    tank_health_green = ru.create_rect(HEALTH_GREEN,
+                                       (HEALTH_BAR_WIDTH, HEALTH_BAR_HEIGHT), factory)
+    tank_health_red.center = False
+    tank_health_green.center = False
+
+    old_frame_time = time.time()
+
     while running:
+        new_frame_time = time.time()
+        delta_t =  new_frame_time - old_frame_time
+        old_frame_time = new_frame_time
 
         events = sdl2.ext.get_events()
         for event in events:
@@ -79,7 +105,7 @@ def commander_main(renderer, factory, socket):
                     enemies = loaded_data["enemies"]
                     bullets = loaded_data["bullets"]
                     update_tank_sprite(tank_top_sprite, tank_bottom_sprite, 
-                                       tank_data, renderer, factory)
+                                       tank_data, tank_health_red, tank_health_green)
 
             if not server_data:
                 print("Server disconnected")
@@ -88,17 +114,44 @@ def commander_main(renderer, factory, socket):
             if server_data == b"exit":
                 running = False
 
-        ru.render_sprites([background, tank_bottom_sprite, tank_top_sprite], renderer)
-        _render_enemies(enemies, renderer, enemy_sprite, enemy_turret_sprite, factory)
-        _render_bullets(bullets, renderer, bullet_sprite)
+        tank_pos = vec.Vec2(tank_bottom_sprite.x, tank_bottom_sprite.y)
+        if tank_pos.x - camera_position.x < SCROLL_BORDER:
+            camera_position.x -= 1
+        elif tank_pos.x - camera_position.x > SCREEN_WIDTH - SCROLL_BORDER:
+            camera_position.x += 1
+        if tank_pos.y - camera_position.y < SCROLL_BORDER:
+            camera_position.y -= 1
+        elif tank_pos.y - camera_position.y > SCREEN_HEIGHT - SCROLL_BORDER:
+            camera_position.y += 1
+
+        tile_size = tiles[0].size[0]
+        for x in range(SCREEN_WIDTH // tile_size + 2):
+            for y in range(SCREEN_HEIGHT // tile_size + 3):
+                tile_x = camera_position.x // tile_size + x
+                tile_y = camera_position.y // tile_size + y
+                render_tile(tile_x, tile_y, tiles, renderer, camera_position)
+
+        ru.render_sprites([tank_bottom_sprite, tank_top_sprite, 
+                           tank_health_red, tank_health_green], renderer, camera_position)
+        _render_enemies(enemies, renderer, enemy_sprite,
+                        enemy_turret_sprite, camera_position, factory)
+        _render_bullets(bullets, renderer, bullet_sprite, camera_position)
+
+        for p in particles:
+            p.update(delta_t)
+            p.render(renderer)
+
+        particles = [a for a in particles if a.is_alive]
+
+
         sdl2.render.SDL_RenderPresent(renderer.sdlrenderer)
 
 
-def _render_enemies(enemies, renderer, enemy_sprite, enemy_turret_sprite, factory):
+def _render_enemies(enemies, renderer, enemy_sprite, enemy_turret_sprite, cam_pos, factory):
     for enemy in enemies:
         health_red = ru.create_rect(RED, (HEALTH_BAR_WIDTH, HEALTH_BAR_HEIGHT), factory)
-        health_green = ru.create_rect(HEALTH_GREEN, 
-                                      (int(HEALTH_BAR_WIDTH * 
+        health_green = ru.create_rect(HEALTH_GREEN,
+                                      (int(HEALTH_BAR_WIDTH *
                                        (enemy["health"] / enemy["original_health"])),
                                                     HEALTH_BAR_HEIGHT), factory)
         health_red.center = False
@@ -116,32 +169,29 @@ def _render_enemies(enemies, renderer, enemy_sprite, enemy_turret_sprite, factor
         enemy_turret_sprite.y = y
         enemy_sprite.angle = vec.radians_to_degrees(enemy["angle"])
         enemy_turret_sprite.angle = vec.radians_to_degrees(enemy["turret_angle"])
-        ru.render_sprites([enemy_sprite, enemy_turret_sprite, health_red, health_green], renderer)
+        ru.render_sprites([enemy_sprite, enemy_turret_sprite, health_red, health_green],
+                          renderer, cam_pos)
 
 
-def _render_bullets(bullets, renderer, bullet_sprite):
+def _render_bullets(bullets, renderer, bullet_sprite, cam_pos):
     for bullet in bullets:
         bullet_sprite.x = int(bullet["position"]["x"])
         bullet_sprite.y = int(bullet["position"]["y"])
         bullet_sprite.angle = vec.radians_to_degrees(
             vec.Vec2(bullet["velocity"]["x"], bullet["velocity"]["y"]).angle())
-        ru.render_sprites([bullet_sprite], renderer)
+        ru.render_sprites([bullet_sprite], renderer, cam_pos = cam_pos)
 
 
-def update_tank_sprite(tank_top_sprite, tank_bottom_sprite, tank_data, renderer, factory):
+def update_tank_sprite(tank_top_sprite, tank_bottom_sprite, 
+                       tank_data, health_red, health_green):
     x = round(tank_data["position"]["x"])
     y = round(tank_data["position"]["y"])
-    health_red = ru.create_rect(RED, (HEALTH_BAR_WIDTH, HEALTH_BAR_HEIGHT), factory)
-    health_green = ru.create_rect(HEALTH_GREEN, 
-                                  (int(HEALTH_BAR_WIDTH * 
-                                   (tank_data["health"] / tank_data["original_health"])),
-                                                HEALTH_BAR_HEIGHT), factory)
-    health_red.center = False
-    health_green.center = False
-    health_red.x = x
+    health_red.x = x - TANK_HEALTH_OFFSET
     health_red.y = y - HEALTH_BAR_OFFSET
-    health_green.x = x
+    health_green.x = x - TANK_HEALTH_OFFSET
     health_green.y = y - HEALTH_BAR_OFFSET
+    health_green.scale = ((tank_data["health"] / tank_data["original_health"]),
+                          1)
     
     tank_bottom_sprite.x = x
     tank_bottom_sprite.y = y
@@ -151,5 +201,4 @@ def update_tank_sprite(tank_top_sprite, tank_bottom_sprite, tank_data, renderer,
     tank_bottom_sprite.angle = tank_data["angle"] / math.pi * 180
     tank_top_sprite.angle = tank_data["gun_angle"] / math.pi * 180
 
-    ru.render_sprites([health_red, health_green], renderer)
 

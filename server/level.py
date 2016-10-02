@@ -21,6 +21,9 @@ MAXIMUM_SPAWN_DISTANCE = 100
 ENEMY_SPEED = 20
 ENEMY_TURN_SPEED = math.pi / 2
 DESPAWN_RADIUS = 500
+AIR_STRIKE_STARTING_DISTANCE = 200
+AIR_STRIKE_SPEED = 150
+AIR_STRIKE_FREQUENCY = 10
 
 # The default probability for the enemies. Higher numbers result in lower frequencies
 DEFAULT_FIRING_FREQUENCY = 3.5
@@ -41,13 +44,21 @@ def turn_angle_to_angle(angle, target_angle, speed, threshold):
         return (angle, True)
 
 
-# class AirStrike():
-# 
-#     def __init__(self, target):
-#         self.target = target
-#         pos, velocity = None
-# 
-#     #def _generate
+class AirStrike():
+
+    def __init__(self, tank_position):
+        self.target = tank_position
+        pos, velocity = self._generate_start_position(tank_position)
+        self.position = pos
+        self.velocity = velocity
+
+    def _generate_start_position(self, tank_position):
+        start_position = tank_position + \
+                vec2_from_direction(random.randrange(0, 7), 
+                                    AIR_STRIKE_STARTING_DISTANCE)
+        velocity = vec2_from_direction(start_position.relative_angle_to(tank_position),
+                                      AIR_STRIKE_SPEED)
+        return start_position, velocity
 
 
 class Enemy():
@@ -100,12 +111,26 @@ class Level():
         self._handle_bullet_collisions()
         self._update_bullet_positions(delta_time)
         self._update_enemy_positions(delta_time)
+        self._update_air_strike_position(delta_time)
         self._fire_enemies(delta_time)
         self._remove_dead_enemies()
         self._spawn_enemies(delta_time)
+        self._spawn_airstrike(delta_time)
+
+    def _add_explosion(self, pos, strength):
+        pass
 
     def to_json(self):
         return json.dumps(self, default=lambda o: o.__dict__, sort_keys=True, indent=4)
+
+    def _update_air_strike_position(self, delta_time):
+        if self.air_strike is not None:
+            self.air_strike.position += self.air_strike.velocity
+
+    def _spawn_airstrike(self, delta_time):
+        if self.air_strike is None and \
+           not random.randint(0, int(AIR_STRIKE_FREQUENCY * delta_time)):
+            self.air_strike = AirStrike(self.tank.position)
 
     def _fire_tank(self, cannon):
         # TODO differentiate between left and right

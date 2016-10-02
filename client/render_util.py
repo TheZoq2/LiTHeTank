@@ -1,14 +1,15 @@
 import sdl2.ext
+from vec import Vec2
 
 RESOURCES = sdl2.ext.Resources(__file__, "resources")
 FONTMANAGER = sdl2.ext.FontManager(RESOURCES.get_path("pixeled.ttf"), size=5)
 
-def render_sprites(sprites, renderer):
+def render_sprites(sprites, renderer, cam_pos = Vec2(0, 0)):
     rect = sdl2.rect.SDL_Rect(0, 0, 0, 0)
 
     for sprite in sprites:
-        rect.x = sprite.x
-        rect.y = sprite.y
+        rect.x = sprite.x - cam_pos.x
+        rect.y = sprite.y - cam_pos.y
         rect.w, rect.h = sprite.size
 
         scale_x, scale_y = sprite.scale
