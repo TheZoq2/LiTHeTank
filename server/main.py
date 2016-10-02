@@ -18,10 +18,13 @@ TANK_SPEED = 10
 TURRET_TURN_SPEED = 1
 SHOOTING_COOLDOWN = 1;
 
+TANK_HEALTH = 100
+
 class Tank:
     def  __init__(self):
         self.gun_angle = 0
-        self.health = 100
+        self.health = TANK_HEALTH
+        self.original_health = TANK_HEALTH
         self.position = Vec2(0,0)
         self.angle = 0
         self.firing_left = False

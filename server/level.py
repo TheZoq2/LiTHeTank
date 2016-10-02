@@ -60,6 +60,7 @@ class Enemy():
         self.position = position
         self.angle = angle if angle is not None else 0
         self.health = health
+        self.original_health = health
         self.size = size
         self.firing_frequency = firing_frequency
         self.state = HUNTING
