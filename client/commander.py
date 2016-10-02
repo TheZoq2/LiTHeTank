@@ -34,6 +34,9 @@ def render_tile(x, y, tiles, renderer, cam_pos):
 
 smoke_list = []
 
+def create_explosion():
+    pass
+
 def commander_main(renderer, factory, socket):
     print("I'm a commander!")
 

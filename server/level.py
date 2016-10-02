@@ -21,6 +21,9 @@ MAXIMUM_SPAWN_DISTANCE = 100
 ENEMY_SPEED = 20
 ENEMY_TURN_SPEED  = math.pi / 2
 DESPAWN_RADIUS = 500
+AIR_STRIKE_STARTING_DISTANCE = 200
+AIR_STRIKE_SPEED = 150
+AIR_STRIKE_FREQUENCY = 10
 
 # The default probability for the enemies. Higher numbers result in lower frequencies
 DEFAULT_FIRING_FREQUENCY = 3.5
@@ -41,13 +44,21 @@ def turn_angle_to_angle(angle, target_angle, speed, threshold):
         return (angle, True)
 
 
-# class AirStrike():
-# 
-#     def __init__(self, target):
-#         self.target = target
-#         pos, velocity = None
-# 
-#     #def _generate
+class AirStrike():
+
+    def __init__(self, target, tank_position):
+        self.target = target
+        pos, velocity = self._generate_start_position(target, tank_position)
+        self.position = pos
+        self.velocity = velocity
+
+    def _generate_start_position(self, target, tank_position):
+        start_position = tank_position + \
+                vec2_from_direction(random.randrange(0, 2 * math.pi), 
+                                    AIR_STRIKE_STARTING_DISTANCE)
+        velocity = vec2_from_direction(target.relative_angle_to(tank_position),
+                                      AIR_STRIKE_SPEED)
+        return start_position, velocity
 
 
 class Enemy():
@@ -102,9 +113,14 @@ class Level():
         self._fire_enemies(delta_time)
         self._remove_dead_enemies()
         self._spawn_enemies(delta_time)
+        self._spawn_airstrike(delta_time)
 
     def to_json(self):
         return json.dumps(self, default=lambda o: o.__dict__, sort_keys=True, indent=4)
+
+    def _spawn_airstrike(self, delta_time):
+        if not random.randint(0, int(AIR_STRIKE_FREQUENCY * delta_time)):
+            pass
 
     def _fire_tank(self, cannon):
         # TODO differentiate between left and right
