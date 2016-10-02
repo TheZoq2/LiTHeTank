@@ -25,7 +25,38 @@ def decode_socket_json_msg(msg):
     type = loaded_data["type"]
     
     data = {}
+    print(msg)
     if loaded_data["data"] != "":
         data = json.loads(loaded_data["data"])
 
     return (type, data)
+
+
+class SocketBuffer:
+    def __init__(self):
+        self.buffer = ""
+
+    def push_string(self, str):
+        self.buffer += str
+
+    def get_messages(self):
+        result = []
+
+        running = True
+        while running:
+            if self.buffer.find("{"):
+                index = self.buffer.find("{")
+                print(index)
+                bytes_to_read = int(self.buffer[0:index])
+
+                if len(self.buffer) > bytes_to_read + index:
+                    self.buffer = self.buffer[index:]
+                    result.append(self.buffer[0:bytes_to_read])
+                    self.buffer = self.buffer[bytes_to_read:]
+                else:
+                    running = False
+            else:
+                running = False
+
+        return  result
+
