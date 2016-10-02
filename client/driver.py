@@ -60,7 +60,7 @@ def driver_main(renderer, factory, s):
     levers["neutral"] = load_sprite("lever_neutral.png", factory)
 
     for lever in levers:
-        levers[lever].center = True
+        levers[lever].center = False
 
     running = True
 
