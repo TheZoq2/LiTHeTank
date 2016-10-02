@@ -63,6 +63,7 @@ def commander_main(renderer, factory, socket):
     bullet_sprite = ru.load_sprite("bullet_normal.png", factory)
     bullet_sprite.scale = (0.1, 0.1)
     box_sprite = ru.load_sprite("air_strike.png", factory)
+    plane_sprite = ru.load_sprite("plane.png", factory)
 
     score_sprite = ru.render_text("score: 0", factory)
     score_sprite.x = 320 // 2 - score_sprite.size[0] // 2
@@ -189,19 +190,26 @@ def commander_main(renderer, factory, socket):
         particles = [a for a in particles if a.is_alive]
 
         if airstrike:
-            _render_air_strike(airstrike, renderer, camera_position, box_sprite, show_warning)
+            _render_air_strike(airstrike, renderer, camera_position, box_sprite, plane_sprite, show_warning)
 
         sdl2.render.SDL_RenderPresent(renderer.sdlrenderer)
 
 
-def _render_air_strike(airstrike, renderer, camera_position, box, show_warning):
+def _render_air_strike(airstrike, renderer, camera_position, box, plane, show_warning):
+    vel = vec.Vec2(airstrike["velocity"]["x"], airstrike["velocity"]["y"])
+    angle = int(vel.angle())
+
     if show_warning:
         box.x = int(airstrike["target"]["x"])
         box.y = int(airstrike["target"]["y"])
 
-        vel = vec.Vec2(airstrike["velocity"]["x"], airstrike["velocity"]["y"])
-        box.angle = int(vel.angle())
+        box.angle = angle
         ru.render_sprites([box], renderer, camera_position)
+
+    box.x = int(airstrike["position"]["x"])
+    box.y = int(airstrike["position"]["y"])
+    plane.angle = angle
+    ru.render_sprites([plane], renderer, camera_position)
 
 
 def _render_enemies(enemies, renderer, enemy_sprite, enemy_turret_sprite, cam_pos, factory, particles):
