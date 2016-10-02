@@ -77,7 +77,8 @@ class Client():
         self.role = role
 
     def send_role(self):
-        send_msg_to_socket(self.socket, create_socket_msg("role", role_to_string(self.role)))
+        msg = create_socket_msg("role", json.dumps({"role": role_to_string(self.role)}))
+        send_msg_to_socket(self.socket, msg)
 
 
 def distribute_roles(clients):

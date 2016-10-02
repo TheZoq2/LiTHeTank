@@ -66,14 +66,14 @@ def run():
             decoded_server_data = decode_socket_data(server_data)
 
             for data in decoded_server_data:
-                loaded_data = json.loads(data)
-                if (loaded_data["type"] == "role"):
+                (type, decoded_data) = decode_socket_json_msg(data)
+                if (type == "role"):
                     window, renderer, factory = create_window()
-                    if (loaded_data["data"] == "GUNNER"):
+                    if (decoded_data["role"] == "GUNNER"):
                         gunner_main(renderer, factory, s)
-                    if (loaded_data["data"] == "DRIVER"):
+                    if (decoded_data["role"] == "DRIVER"):
                         driver_main(renderer, factory, s)
-                    if (loaded_data["data"] == "COMMANDER"):
+                    if (decoded_data["role"] == "COMMANDER"):
                         commander_main(renderer, factory, s)
 
             if not server_data:
