@@ -12,9 +12,14 @@ def gunner_main(renderer, factory, s):
 
     background = load_sprite("gunner_background.png", factory)
     compass_needle = load_sprite("compass_needle.png", factory)
+    compass_needle_medium = load_sprite("compass_needle_medium.png", factory)
     compass_needle.x = 223
     compass_needle.y = 41
+    compass_needle_medium.x = 130
+    compass_needle_medium.y = 116
+
     gun_angle = 0
+    tank_angle = 0
 
     running = True
 
@@ -57,9 +62,11 @@ def gunner_main(renderer, factory, s):
             msg = create_socket_msg("turn_state", json.dumps({"direction": new_turn_dir}))
             send_msg_to_socket(ready_to_write[0], msg)
 
+        for ready in ready_to_write:
+            send_msg_to_socket(ready, create_socket_msg("update", ""))
+
         for ready in ready_to_read:
 
-            send_msg_to_socket(ready, create_socket_msg("update", ""))
 
             server_data = ready.recv(102400).decode("utf-8")
 
@@ -68,12 +75,13 @@ def gunner_main(renderer, factory, s):
 
             #decoded_server_data = decode_socket_data(server_data)
             decoded_server_data = socket_buffer.get_messages()
-
             for data in decoded_server_data:
                 (type, loaded_data) = decode_socket_json_msg(data)
                 if type == "update":
                     tank = loaded_data["tank"]
-                    gun_angle = tank["gun_angle"]
+                    gun_angle = tank["gun_angle"] / math.pi * 180
+                    tank_angle = tank["angle"] / math.pi * 180
+
 
             if not server_data:
                 print("Server disconnected")
@@ -82,6 +90,7 @@ def gunner_main(renderer, factory, s):
             if server_data == b"exit":
                 running = False
 
-        compass_needle.angle = -gun_angle
-        render_sprites([background, compass_needle], renderer)
+        compass_needle.angle = -gun_angle - 90
+        compass_needle_medium.angle = -tank_angle - 90
+        render_sprites([background, compass_needle, compass_needle_medium], renderer)
         sdl2.render.SDL_RenderPresent(renderer.sdlrenderer)
