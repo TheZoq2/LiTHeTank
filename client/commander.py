@@ -189,7 +189,7 @@ def commander_main(renderer, factory, socket):
 
         particles = [a for a in particles if a.is_alive]
 
-        if airstrike:
+        if airstrike is not None:
             _render_air_strike(airstrike, renderer, camera_position, box_sprite, plane_sprite, show_warning)
 
         sdl2.render.SDL_RenderPresent(renderer.sdlrenderer)
@@ -206,8 +206,8 @@ def _render_air_strike(airstrike, renderer, camera_position, box, plane, show_wa
         box.angle = angle
         ru.render_sprites([box], renderer, camera_position)
 
-    box.x = int(airstrike["position"]["x"])
-    box.y = int(airstrike["position"]["y"])
+    plane.x = int(airstrike["position"]["x"])
+    plane.y = int(airstrike["position"]["y"])
     plane.angle = angle
     ru.render_sprites([plane], renderer, camera_position)
 

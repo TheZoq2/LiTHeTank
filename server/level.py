@@ -22,8 +22,8 @@ ENEMY_SPEED = 10
 ENEMY_TURN_SPEED = math.pi / 4
 DESPAWN_RADIUS = 500
 ENEMY_DESPAWN_RADIUS = 500
-AIR_STRIKE_STARTING_DISTANCE = 200
-AIR_STRIKE_SPEED = 30
+AIR_STRIKE_STARTING_DISTANCE = 450
+AIR_STRIKE_SPEED = 150
 AIR_STRIKE_FREQUENCY = 2
 AIR_STRIKE_EXPLOSION_STRENGTH = 50
 AIR_STRIKE_EXPLOSION_RADIUS = 30
@@ -68,7 +68,7 @@ class AirStrike():
                 vec2_from_direction(random.randrange(0, 7), 
                                     AIR_STRIKE_STARTING_DISTANCE)
         velocity = vec2_from_direction(start_position.relative_angle_to(tank_position),
-                                      AIR_STRIKE_SPEED)
+                                      -AIR_STRIKE_SPEED)
         return start_position, velocity
 
     def should_drop_bomb(self):
@@ -151,7 +151,7 @@ class Level():
 
     def _update_air_strike_position(self, delta_time):
         if self.air_strike is not None:
-            self.air_strike.position += self.air_strike.velocity
+            self.air_strike.position += self.air_strike.velocity * delta_time
             if self.air_strike.should_drop_bomb():
                 self.air_strike.drop_bomb()
                 self._damage_players_explosion(AIR_STRIKE_BOMB_DAMAGE,
@@ -200,13 +200,11 @@ class Level():
             if bullet.position.is_within_bounds(self.tank.position, TANK_SIZE):
                 self.tank.health -= bullet.damage
                 bullets_to_remove.append(bullet)
-                print("TANK HIT")
                 continue
             for enemy in self.enemies:
                 if bullet.position.is_within_bounds(enemy.position, enemy.size):
                     enemy.health -= bullet.damage
                     bullets_to_remove.append(bullet)
-                    print("ENEMY HIT")
         self.bullets = [bullet for bullet in self.bullets if bullet not in bullets_to_remove]
 
     def _update_bullet_positions(self, delta_time):
