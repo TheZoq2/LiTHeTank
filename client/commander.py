@@ -2,6 +2,7 @@ import sdl2
 
 import json
 import vec
+import random
 
 import render_util as ru
 from select import select
@@ -34,8 +35,15 @@ def render_tile(x, y, tiles, renderer, cam_pos):
 
 smoke_list = []
 
-def create_explosion():
-    pass
+def create_explosion(pos, strength, particles, explosion_sprites):
+    for i in range(10):
+        angle = random.randint(0, 1000) / 1000 * math.pi * 2
+        speed  = random.randint(300, 1000) / 1000 * 15
+        
+        vel = vec.vec2_from_direction(angle, speed)
+        particles.append(particle.create_explosion_particle(pos, vel, explosion_sprites))
+
+
 
 def commander_main(renderer, factory, socket):
     print("I'm a commander!")
@@ -72,6 +80,7 @@ def commander_main(renderer, factory, socket):
 
     global smoke_list
     smoke_list = particle.load_smoke_particles(factory)
+    explosion_sprites = particle.load_explosion_particles(factory)
 
 
 
@@ -83,6 +92,8 @@ def commander_main(renderer, factory, socket):
     tank_health_green.center = False
 
     old_frame_time = time.time()
+
+    create_explosion(vec.Vec2(100, 100), 50, particles, explosion_sprites)
 
     while running:
         new_frame_time = time.time()
