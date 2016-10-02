@@ -27,6 +27,8 @@ def commander_main(renderer, factory, socket):
 
     running = True
 
+    socket_buffer = SocketBuffer()
+
     while running:
 
         events = sdl2.ext.get_events()
@@ -44,10 +46,11 @@ def commander_main(renderer, factory, socket):
         bullets = []
 
         for ready in ready_to_read:
+            server_data = ready.recv(4096).decode("utf-8")
+            socket_buffer.push_string(server_data)
 
-            server_data = ready.recv(102400).decode("utf-8")
-
-            decoded_server_data = decode_socket_data(server_data)
+            #decoded_server_data = decode_socket_data(server_data)
+            decoded_server_data = socket_buffer.get_messages()
 
             tank_top_sprite.x = 200
             tank_top_sprite.y = 200

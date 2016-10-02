@@ -43,7 +43,7 @@ class SocketBuffer:
 
         running = True
         while running:
-            if(self.buffer.find("{")):
+            if self.buffer.find("{"):
                 index = self.buffer.find("{")
                 bytes_to_read = int(self.buffer[0:index])
 
@@ -51,6 +51,8 @@ class SocketBuffer:
                     self.buffer = self.buffer[index:]
                     result.append(self.buffer[0:bytes_to_read])
                     self.buffer = self.buffer[bytes_to_read:]
+                else:
+                    running = False
             else:
                 running = False
 

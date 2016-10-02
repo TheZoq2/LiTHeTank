@@ -63,7 +63,7 @@ def role_to_string(role):
         return "DRIVER"
 
 #role_list = [Role.COMMANDER, Role.GUNNER, Role.DRIVER]
-role_list = [Role.GUNNER]
+role_list = [Role.COMMANDER, Role.GUNNER]
 
 
 
