@@ -65,6 +65,7 @@ def run():
             for data in decoded_server_data:
                 loaded_data = json.loads(data)
                 if (loaded_data["type"] == "role"):
+                    window, renderer, factory = create_window()
                     if (loaded_data["data"] == "GUNNER"):
                         gunner_main(renderer, factory, s)
                     if (loaded_data["data"] == "DRIVER"):

@@ -13,6 +13,9 @@ from socket_util import *
 
 PORT = 2000
 
+TANK_SPEED = 10
+TURRET_TURN_SPEED = 1
+
 class Tank:
     def  __init__(self):
         self.gun_angle = 0
@@ -21,6 +24,7 @@ class Tank:
         self.angle = 0
         self.firing_left = False
         self.firing_right = False
+        self.turn_direction = 0
 
         self.left_track = 0
         self.right_track = 0
@@ -28,16 +32,22 @@ class Tank:
     def to_json(self):
         return json.dumps(self, default=lambda o: o.__dict__, sort_keys=True, indent=4)
 
-    def update():
-        add_speed = left_track + right_track
-        add_angle = -left_track + right_track
+    def update(self, delta_t):
+        add_speed = self.left_track + self.right_track
+        add_speed = add_speed * TANK_SPEED
+        add_angle = -self.left_track + self.right_track
 
-        self.angle += add_angle
-        self.position += vec2_from_direction(self.angle, add_speed)
+        self.gun_angle += self.turn_direction * TURRET_TURN_SPEED * delta_t
+
+        self.angle += add_angle * delta_t
+        self.position += vec2_from_direction(self.angle, add_speed * delta_t)
 
     def set_track_state(self, left, right):
         self.left_track = left
         self.right_track = right
+
+    def set_turn_direction(self, dir):
+        self.turn_direction = dir
 
 class Role(Enum):
     COMMANDER = 0,
@@ -99,14 +109,15 @@ def update_client(client, level):
             decoded = decode_socket_data(data)
 
             for msg in decoded:
-                msg_dict = json.loads(msg)
+                (type, data) = decode_socket_json_msg(msg)
 
-                if msg_dict["type"] == "update":
+                if type == "update":
                     send_msg_to_socket(client.socket, create_socket_msg("update", level.to_json()))
-                if msg_dict["type"] == "rotate_gun_right":
-                    level.tank.gun_angle += 1
-                if msg_dict["type"] == "rotate_gun_left":
-                    level.tank.gun_angle -= 1
+                if type == "turn_state":
+                    level.tank.set_turn_direction(data["direction"])
+                if type == "track_state":
+                    level.tank.set_track_state(data["left_amount"], data["right_amount"])
+                    print(level.tank.left_track)
                 else:
                     handle_game_msg_from_client(client, level)
 
@@ -131,6 +142,7 @@ def run_game(clients):
         delta_t = new_time - old_time
         old_time = new_time
         # Check all the sockets
+        level.tank.update(delta_t)
         level.update(delta_t)
 
         for client in clients:

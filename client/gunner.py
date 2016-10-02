@@ -20,6 +20,9 @@ def gunner_main(renderer, factory, s):
 
     while running:
 
+        key_is_pressed = False
+        new_turn_dir = 0
+
         events = sdl2.ext.get_events()
         for event in events:
             if event.type == sdl2.SDL_QUIT:
@@ -27,9 +30,17 @@ def gunner_main(renderer, factory, s):
                 break
             if event.type == sdl2.SDL_KEYDOWN:
                 if event.key.keysym.sym == sdl2.SDLK_k:
-                    send_msg_to_socket(ready_to_write[0], create_socket_msg("rotate_gun_right", ""))
+                    new_turn_dir = 1
+                    key_is_pressed = True
                 elif event.key.keysym.sym == sdl2.SDLK_j:
-                    send_msg_to_socket(ready_to_write[0], create_socket_msg("rotate_gun_left", ""))
+                    new_turn_dir = -1
+                    key_is_pressed = True
+            if event.type == sdl2.SDL_KEYUP:
+                if event.key.keysym.sym == sdl2.SDLK_k:
+                    key_is_pressed = True
+                elif event.key.keysym.sym == sdl2.SDLK_j:
+                    key_is_pressed = True
+
 
         events = sdl2.ext.get_events()
         for event in events:
@@ -39,9 +50,14 @@ def gunner_main(renderer, factory, s):
 
         ready_to_read, ready_to_write, in_error = select([s], [s], [], 0)
 
-        send_msg_to_socket(ready_to_write[0], create_socket_msg("update", ""))
+
+        if key_is_pressed:
+            msg = create_socket_msg("turn_state", json.dumps({"direction": new_turn_dir}))
+            send_msg_to_socket(ready_to_write[0], msg)
 
         for ready in ready_to_read:
+
+            send_msg_to_socket(ready, create_socket_msg("update", ""))
 
             server_data = ready.recv(102400).decode("utf-8")
 

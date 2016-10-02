@@ -22,6 +22,7 @@ def driver_main(renderer, factory, s):
 
     while running:
 
+        keys_have_changed = False
         events = sdl2.ext.get_events()
         for event in events:
             if event.type == sdl2.SDL_QUIT:
@@ -31,14 +32,23 @@ def driver_main(renderer, factory, s):
             if event.type == sdl2.SDL_KEYDOWN:
                 keysym = event.key.keysym.sym
                 if keysym in key_map.keys():
+                    keys_have_changed = True
                     keys[key_map[keysym]] = True
 
             if event.type == sdl2.SDL_KEYUP:
                 keysym = event.key.keysym.sym
                 if keysym in key_map.keys():
+                    keys_have_changed = True
                     keys[key_map[keysym]] = False
 
+
+
         ready_to_read, ready_to_write, in_error = select([s], [s], [], 0)
+
+
+        #Send an update message to the server
+        if keys_have_changed:
+            send_keys(ready_to_write[0], keys)
 
         for ready in ready_to_read:
 
@@ -63,3 +73,20 @@ def driver_main(renderer, factory, s):
         compass_needle.angle = -tank_angle
         render_sprites([compass_needle], renderer)
 
+def send_keys(socket, keys):
+    left_amount = 0;
+    right_amount = 0;
+    if keys["u1"]:
+        left_amount = 1
+    if keys["d1"]:
+        left_amount = -1
+    if keys["u2"]:
+        right_amount = 1
+    if keys["d2"]:
+        right_amount = -1
+
+    #Send a message about the current track state to the server
+    msg = create_socket_msg(
+            "track_state", 
+            json.dumps({"left_amount": left_amount, "right_amount": right_amount}))
+    send_msg_to_socket(socket, msg)
