@@ -23,8 +23,8 @@ ENEMY_TURN_SPEED = math.pi / 4
 DESPAWN_RADIUS = 500
 ENEMY_DESPAWN_RADIUS = 500
 AIR_STRIKE_STARTING_DISTANCE = 200
-AIR_STRIKE_SPEED = 150
-AIR_STRIKE_FREQUENCY = 10
+AIR_STRIKE_SPEED = 30
+AIR_STRIKE_FREQUENCY = 2
 AIR_STRIKE_EXPLOSION_STRENGTH = 50
 AIR_STRIKE_EXPLOSION_RADIUS = 30
 AIR_STRIKE_BOMB_RESOLUTION = 4
@@ -143,7 +143,6 @@ class Level():
         self._spawn_enemies(delta_time)
         self._spawn_airstrike(delta_time)
 
-
     def _add_explosion(self, pos, strength):
         pass
 
@@ -175,7 +174,7 @@ class Level():
 
     def _spawn_airstrike(self, delta_time):
         if self.air_strike is None and \
-           (not random.randint(0, int(AIR_STRIKE_FREQUENCY * delta_time))):
+           (not random.randint(0, int(AIR_STRIKE_FREQUENCY / delta_time))):
             self.air_strike = AirStrike(self.tank.position)
 
     def _fire_tank(self, cannon):
