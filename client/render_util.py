@@ -2,6 +2,7 @@ import sdl2.ext
 from vec import Vec2
 
 RESOURCES = sdl2.ext.Resources(__file__, "resources")
+FONTMANAGER = sdl2.ext.FontManager(RESOURCES.get_path("pixeled.ttf"), size=5)
 
 def render_sprites(sprites, renderer, cam_pos = Vec2(0, 0)):
     rect = sdl2.rect.SDL_Rect(0, 0, 0, 0)
@@ -37,6 +38,14 @@ def load_sprite(path, factory):
 
 def create_rect(color, size, factory):
     sprite = factory.from_color(color, size=size)
+    sprite.angle = 0
+    sprite.scale = (1, 1)
+    sprite.center = True
+    return sprite
+
+def render_text(text, factory):
+    surface = FONTMANAGER.render(text)
+    sprite = factory.from_surface(surface)
     sprite.angle = 0
     sprite.scale = (1, 1)
     sprite.center = True
