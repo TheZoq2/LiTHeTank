@@ -114,10 +114,9 @@ def driver_main(renderer, factory, s):
             if server_data == b"exit":
                 running = False
 
-        renderer.render([background])
 
         compass_needle.angle = -tank_angle
-        render_sprites([compass_needle], renderer)
+        render_sprites([background, compass_needle], renderer)
 
         render_lever(LEVER_1_X, levers, lever_dir(keys["u1"], keys["d1"]), renderer)
         render_lever(LEVER_2_X, levers, lever_dir(keys["u2"], keys["d2"]), renderer)
