@@ -23,6 +23,9 @@ def decode_socket_json_msg(msg):
     loaded_data = json.loads(msg)
 
     type = loaded_data["type"]
-    data = json.loads(loaded_data["data"])
+    
+    data = {}
+    if loaded_data["data"] != "":
+        data = json.loads(loaded_data["data"])
 
     return (type, data)

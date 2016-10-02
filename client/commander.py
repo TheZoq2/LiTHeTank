@@ -6,10 +6,13 @@ import render_util as ru
 from select import select
 from socket_util import *
 import pdb
+import math
 
+WHITE = sdl2.ext.Color(255, 255, 255)
+GREEN = sdl2.ext.Color(150, 255, 120)
 
 def commander_main(renderer, factory, socket):
-    print("I'm a driver!")
+    print("I'm a commander!")
 
     #background = load_sprite("driver_background.png", factory)
     #renderer.render([background])
@@ -17,6 +20,8 @@ def commander_main(renderer, factory, socket):
 
     # TODO add needle
     tank_top_sprite = ru.load_sprite("tank top.png", factory)
+    background = factory.from_color(GREEN, size=(320, 180))
+    background.angle = 0
 
     running = True
 
@@ -47,9 +52,10 @@ def commander_main(renderer, factory, socket):
                 (type, loaded_data) = decode_socket_json_msg(data)
                 if type == "update":
                     tank = loaded_data["tank"]
-                    tank_top_sprite.x = tank["position"]["x"]
-                    tank_top_sprite.y = tank["position"]["y"]
-                    tank_top_sprite.angle = tank["gun_angle"]
+                    tank_top_sprite.x = round(tank["position"]["x"])
+                    tank_top_sprite.y = round(tank["position"]["y"])
+                    #tank_top_sprite.angle = tank["gun_angle"]
+                    tank_top_sprite.angle = tank["angle"] / math.pi * 180
 
                    #print("Got update msg with x {} y {}".format(tank["position"]["x"],tank["position"]["y"]))
 
@@ -60,6 +66,6 @@ def commander_main(renderer, factory, socket):
             if server_data == b"exit":
                 running = False
 
-        ru.render_sprites([tank_top_sprite], renderer)
+        ru.render_sprites([background, tank_top_sprite], renderer)
 
 
