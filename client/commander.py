@@ -22,6 +22,8 @@ def commander_main(renderer, factory, socket):
     # TODO add needle
     tank_top_sprite = ru.load_sprite("tank top.png", factory)
     tank_bottom_sprite = ru.load_sprite("tank bot.png", factory)
+    enemy_sprite = ru.load_sprite("enemy.png", factory)
+    bullet_sprite = ru.load_sprite("bullet_normal.png", factory)
     background = factory.from_color(GREEN, size=(320, 180))
     background.angle = 0
 
@@ -70,35 +72,26 @@ def commander_main(renderer, factory, socket):
             if server_data == b"exit":
                 running = False
 
-        _render_enemies(enemies, renderer, factory)
-        _render_bullets(bullets, renderer, factory)
         ru.render_sprites([background, tank_bottom_sprite, tank_top_sprite], renderer)
+        _render_enemies(enemies, renderer, factory, enemy_sprite)
+        _render_bullets(bullets, renderer, factory, bullet_sprite)
 
 
-def _render_enemies(enemies, renderer, factory):
-    sprites = []
+def _render_enemies(enemies, renderer, factory, enemy_sprite):
     for enemy in enemies:
-        enemy_sprite = ru.load_sprite("enemy.png", factory)
         enemy_sprite.x = int(enemy["position"]["x"])
         enemy_sprite.y = int(enemy["position"]["y"])
         enemy_sprite.angle = vec.radians_to_degrees(enemy["angle"])
-        #enemy_sprite.size = enemy["size"]
-        sprites.append(enemy_sprite)
-
-    ru.render_sprites(sprites, renderer)
+        ru.render_sprites([enemy_sprite], renderer)
         
 
-def _render_bullets(bullets, renderer, factory):
-    sprites = []
+def _render_bullets(bullets, renderer, factory, bullet_sprite):
     for bullet in bullets:
-        bullet_sprite = ru.load_sprite("bullet_normal.png", factory)
         bullet_sprite.x = int(bullet["position"]["x"])
         bullet_sprite.y = int(bullet["position"]["y"])
         bullet_sprite.angle = vec.radians_to_degrees(
             vec.Vec2(bullet["velocity"]["x"], bullet["velocity"]["y"]).angle())
-        sprites.append(bullet_sprite)
-
-    ru.render_sprites(sprites, renderer)
+        ru.render_sprites([bullet_sprite], renderer)
 
 
 def update_tank_sprite(tank_top_sprite, tank_bottom_sprite, tank_data):

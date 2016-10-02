@@ -103,7 +103,7 @@ class Level():
 
     def _update_enemy_positions(self, delta_time):
         for enemy in self.enemies:
-            enemy.angle = enemy.position.relative_angle_to(self.tank.position)
+            enemy.angle = -enemy.position.relative_angle_to(self.tank.position)
             enemy.position += vec2_from_direction(enemy.angle, 100 * delta_time)
     
     def _remove_dead_enemies(self):
