@@ -18,14 +18,15 @@ DEFAULT_ENEMY_HEALTH = 20
 SPAWN_FREQUENCY = 1
 TANK_SIZE = 14
 MAXIMUM_SPAWN_DISTANCE = 100
-ENEMY_SPEED = 20
-ENEMY_TURN_SPEED = math.pi / 2
+ENEMY_SPEED = 10
+ENEMY_TURN_SPEED = math.pi / 4
 DESPAWN_RADIUS = 500
+ENEMY_DESPAWN_RADIUS = 500
 AIR_STRIKE_STARTING_DISTANCE = 200
 AIR_STRIKE_SPEED = 150
 AIR_STRIKE_FREQUENCY = 10
 AIR_STRIKE_EXPLOSION_STRENGTH = 50
-AIR_STRIKE_EXPLOSION_RADUIS = 30
+AIR_STRIKE_EXPLOSION_RADIUS = 30
 AIR_STRIKE_BOMB_RESOLUTION = 4
 AIR_STRIKE_BOMB_DAMAGE = 40
 INTER_AIR_STRIKE_DISTANCE = 50
@@ -122,6 +123,9 @@ class Level():
         self.enemies = []
         self.bullets = []
         self.score = 0
+        self._spawn_an_enemy()
+        self._spawn_an_enemy()
+        self._spawn_an_enemy()
 
     def update(self, delta_time):
         if self.tank.firing_left:
@@ -139,6 +143,7 @@ class Level():
         self._spawn_enemies(delta_time)
         self._spawn_airstrike(delta_time)
 
+
     def _add_explosion(self, pos, strength):
         pass
 
@@ -150,14 +155,23 @@ class Level():
             self.air_strike.position += self.air_strike.velocity
             if self.air_strike.should_drop_bomb():
                 self.air_strike.drop_bomb()
+                self._damage_players_explosion(AIR_STRIKE_BOMB_DAMAGE,
+                                               AIR_STRIKE_EXPLOSION_RADIUS,
+                                               self.air_strike.position)
                 self._add_explosion(self.air_strike.position, AIR_STRIKE_EXPLOSION_STRENGTH)
+            if self.air_strike.position.distance_to(self.tank.position) > DESPAWN_RADIUS:
+                self.air_strike = None
 
-    def _damage_players_explosion(self, radius):
+    def _damage_players_explosion(self, damage, radius, explosion_position):
         for enemy in self.enemies:
-            pass
+            enemy.health -= self._get_damage(damage, radius,
+                                             enemy.position.distance_to(explosion_position))
             
-    def _get_damage(self):
-        pass
+    def _get_damage(self, max_damage, radius, distance):
+        if distance > radius:
+            return 0
+        else:
+            return int(max_damage * ((radius - distance) / radius))
 
     def _spawn_airstrike(self, delta_time):
         if self.air_strike is None and \
@@ -235,6 +249,8 @@ class Level():
                                         ENEMY_TURN_SPEED * delta_time,
                                         math.pi / 9)
 
+        self.enemies = [e for e in self.enemies if abs(e.position - self.tank.position) < ENEMY_DESPAWN_RADIUS]
+
 
     def _remove_dead_enemies(self):
         temp_enemies = []
@@ -269,7 +285,11 @@ class Level():
     def _spawn_enemies(self, delta_time):
         if len(self.enemies) < 5:
             if random.randint(0, int(SPAWN_FREQUENCY / delta_time)) == 0:
-                angle = (random.randint(0, 1000) / 1000) * math.pi * 2
-                self.enemies.append(Enemy(self.tank.position + vec2_from_direction(angle, 300)))
+                self._spawn_an_enemy()
+
+    def _spawn_an_enemy(self):
+        angle = (random.randint(0, 1000) / 1000) * math.pi * 2
+        self.enemies.append(Enemy(self.tank.position + vec2_from_direction(angle, 300)))
+
 
 

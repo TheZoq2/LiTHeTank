@@ -70,7 +70,7 @@ def commander_main(renderer, factory, socket):
     score_sprite.center = False
     score = 0
 
-    tiles = [ru.load_sprite("tile" + str(i + 1) + ".png", factory) for i in range(6)]
+    tiles = [ru.load_sprite("tile" + str(i + 1) + ".png", factory) for i in range(5)]
 
     running = True
 
