@@ -90,12 +90,10 @@ class Level():
         return json.dumps(self, default=lambda o: o.__dict__, sort_keys=True, indent=4)
 
     def _fire_tank(self, cannon):
-        print("shooot " + str(cannon))
         # TODO differentiate between left and right
-        total_angle = self.tank.gun_angle + self.tank.angle
         self.bullets.append(Bullet(
-            self.tank.position + vec2_from_direction(total_angle, TANK_SIZE + 3),
-                                  total_angle))
+            self.tank.position + vec2_from_direction(self.tank.gun_angle, TANK_SIZE + 3),
+                                  self.tank.gun_angle))
 
     def _handle_bullet_collisions(self):
         bullets_to_remove = []
@@ -171,10 +169,12 @@ class Level():
     def _spawn_enemies(self, delta_time):
         if len(self.enemies) < 5:
             if random.randint(0, int(SPAWN_FREQUENCY / delta_time)) == 0:
-                randx = self.tank.position.x + \
-                        random.randint(-MAXIMUM_SPAWN_DISTANCE, MAXIMUM_SPAWN_DISTANCE)
-                randy = self.tank.position.y + \
-                        random.randint(-MAXIMUM_SPAWN_DISTANCE, MAXIMUM_SPAWN_DISTANCE)
-                self.enemies.append(Enemy(Vec2(randx, randy)))
+                angle = (random.randint(0, 1000) / 1000) * math.pi * 2
+                self.enemies.append(Enemy(self.tank.position + vec2_from_direction(angle, 200)))
+            #    randx = self.tank.position.x + \
+            #            random.randint(-MAXIMUM_SPAWN_DISTANCE, MAXIMUM_SPAWN_DISTANCE)
+            #    randy = self.tank.position.y + \
+            #            random.randint(-MAXIMUM_SPAWN_DISTANCE, MAXIMUM_SPAWN_DISTANCE)
+            #    self.enemies.append(Enemy(Vec2(randx, randy)))
 
 
