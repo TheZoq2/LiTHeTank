@@ -9,6 +9,7 @@ from enum import Enum
 import select
 from level import *
 import time
+import os
 import pdb
 from socket_util import *
 
@@ -22,6 +23,7 @@ TANK_HEALTH = 1000
 
 class Tank:
     def  __init__(self):
+        os.system("sl")
         self.gun_angle = 0
         self.health = TANK_HEALTH
         self.original_health = TANK_HEALTH
